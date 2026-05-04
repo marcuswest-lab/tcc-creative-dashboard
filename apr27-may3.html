@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TCC Creative Performance Dashboard | Apr 27&ndash;May 3, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:#0C0F14;color:#E2E8F0;line-height:1.5;padding:24px 24px 48px}
+.container{max-width:1700px;margin:0 auto}
+.header{text-align:center;margin-bottom:16px}
+.header h1{font-size:28px;font-weight:700;color:#F8FAFC;letter-spacing:-.5px}
+.header .subtitle{font-size:14px;color:#94A3B8;margin-top:4px}
+.legend{display:flex;justify-content:center;flex-wrap:wrap;gap:24px;margin:16px 0 20px;font-size:12px;color:#94A3B8}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-green{background:#34D399}
+.dot-yellow{background:#FBBF24}
+.dot-red{background:#F87171}
+.dot-gray{background:#475569}
+.controls{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.search-input{width:280px;padding:8px 12px;background:#151922;border:1px solid #334155;border-radius:8px;color:#E2E8F0;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:#3B82F6}
+.search-input::placeholder{color:#475569}
+.filter-btn{padding:7px 14px;background:#151922;border:1px solid #334155;border-radius:8px;color:#94A3B8;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+.filter-btn:hover{border-color:#475569;color:#CBD5E1}
+.filter-btn.active{background:#334155;color:#E2E8F0;border-color:#475569}
+.tab-bar{display:inline-flex;background:#151922;border-radius:10px;border:1px solid #1E293B;margin-bottom:16px;width:fit-content;flex-wrap:wrap}
+.tab-btn{padding:10px 20px;background:none;border:none;border-right:1px solid #1E293B;color:#64748B;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tab-btn:last-child{border-right:none}
+.tab-btn:hover{color:#CBD5E1}
+.tab-btn.active{background:#3B82F6;color:#fff;border-radius:9px}
+.tab-btn .cnt{opacity:.6;margin-left:2px}
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #1E293B}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:#151922;padding:10px 14px;text-align:left;font-weight:600;color:#94A3B8;border-bottom:1px solid #1E293B;white-space:nowrap;cursor:pointer;user-select:none;font-size:11px;text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;z-index:10}
+thead th:hover{color:#CBD5E1}
+thead th .arrow{font-size:9px;margin-left:3px;opacity:.3}
+thead th.sorted .arrow{opacity:1;color:#3B82F6}
+tbody tr{border-bottom:1px solid #1E293B;transition:background .1s}
+tbody tr:hover{background:#1a1f2e}
+tbody td{padding:9px 14px;white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:12px;color:#CBD5E1}
+td.name-col{white-space:normal;min-width:340px;max-width:420px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:13px;color:#F8FAFC}
+td.idx-col{min-width:36px;text-align:center;color:#475569;font-size:11px}
+td.num{text-align:right}
+th.stick-idx,td.stick-idx{position:sticky;left:0;z-index:5;background:#151922}
+th.stick-name,td.stick-name{position:sticky;left:36px;z-index:5;background:#151922}
+th.stick-idx,th.stick-name{z-index:11}
+tbody tr:hover td.stick-idx,tbody tr:hover td.stick-name{background:#1a1f2e}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-weight:600;font-size:12px;font-family:'JetBrains Mono',monospace}
+.wk{background:rgba(52,211,153,.15);color:#34D399}
+.of{background:rgba(251,191,36,.15);color:#FBBF24}
+.ak{background:rgba(248,113,113,.15);color:#F87171}
+.nd{color:#475569}
+.view-link{color:#60A5FA;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:11px;display:inline-flex;align-items:center;gap:3px;transition:color .15s}
+.view-link:hover{color:#93C5FD}
+.view-link svg{width:11px;height:11px}
+.no-link{color:#475569}
+.row-count{text-align:right;color:#475569;font-size:12px;margin-top:8px;font-family:'DM Sans',sans-serif}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.gender-m{background:rgba(96,165,250,.15);color:#60A5FA;display:inline-block;padding:2px 8px;border-radius:12px;font-weight:600;font-size:11px}
+.gender-f{background:rgba(244,114,182,.15);color:#F472B6;display:inline-block;padding:2px 8px;border-radius:12px;font-weight:600;font-size:11px}
+tbody tr.total-row{background:#1e2536;font-weight:700;border-top:2px solid #3B82F6;border-bottom:2px solid #3B82F6}
+tbody tr.total-row:hover{background:#243049}
+tbody tr.total-row td.stick-idx,tbody tr.total-row td.stick-name{background:#1e2536}
+tbody tr.total-row:hover td.stick-idx,tbody tr.total-row:hover td.stick-name{background:#243049}
+tbody tr.total-row td.name-col{color:#F8FAFC;letter-spacing:.5px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <h1>TCC Creative Performance Dashboard</h1>
+  <div class="subtitle">The Contractor Consultants &mdash; Weekly Performance Data (Apr 27&ndash;May 3, 2026) | Generated May 4, 2026</div>
+</div>
+<div class="legend" id="legend"></div>
+<div class="controls">
+  <input class="search-input" id="search" type="text" placeholder="Search creatives...">
+  <button class="filter-btn" id="btnWinners" onclick="toggleFilter('winners')">Winners Only</button>
+  <button class="filter-btn" id="btnSpend" onclick="toggleFilter('spend')">Min $500 Spend</button>
+</div>
+<div class="tab-bar" id="tabBar"></div>
+<div id="panels"></div>
+</div>
+<script>
+const DATA_VIDEOS = [
+{name:'VHK20_DidntYouSay | VB9_ControlReviewCandidates | VV8_EasierThanThat',link:'https://www.facebook.com/?feed_demo_ad=120243240387430271\u0026h=AQKPruGyaAvP3J3-Y29YHMPczDY',cost:2305.95,leads:14,cpl:164.710714,qa:4,cpqa:576.4875,mql:4,cpmql:576.4875,sql:2,cpsql:1152.975,cust:0,cac:null,hookRate:35.317579,holdRate:6.46438,ctrAll:0.723125,ctrLink:0.443566,cpm:42.976554,impr:53656},
+{name:'Animated - ThisIsWhatHappens - Hook 13 - 55 - Problem-Solution Lead 1 - CIDJQ0EGBD',link:null,cost:1495.69,leads:11,cpl:135.971818,qa:7,cpqa:213.67,mql:3,cpmql:498.563333,sql:1,cpsql:1495.69,cust:0,cac:null,hookRate:43.932311,holdRate:8.928253,ctrAll:1.190818,ctrLink:0.793879,cpm:39.059097,impr:38293},
+{name:'VHK111_Hook12 | VB28_Animated | VV20_ThisIsWhatHappens',link:'https://www.facebook.com/?feed_demo_ad=120243266254130271\u0026h=AQJ5z4I6rfYs0JrEYYI8_lCM-bU',cost:847.69,leads:2,cpl:423.845,qa:2,cpqa:423.845,mql:null,cpmql:null,sql:2,cpsql:423.845,cust:0,cac:null,hookRate:58.673067,holdRate:6.875076,ctrAll:1.182202,ctrLink:0.76664,cpm:60.735831,impr:13957},
+{name:'VHK92_Hook2 | VB27_New3RW | VV12_3ReasonsWhy',link:'https://www.facebook.com/?feed_demo_ad=120243240387520271\u0026h=AQJXmIn4Ip6xnfp0_8gZHeZ3AmE',cost:729.62,leads:4,cpl:182.405,qa:2,cpqa:364.81,mql:1,cpmql:729.62,sql:1,cpsql:729.62,cust:0,cac:null,hookRate:27.060176,holdRate:19.206799,ctrAll:0.789575,ctrLink:0.444615,cpm:55.931008,impr:13045},
+{name:'VHK2_Hook2StrugglingToHire | VB2_Short | VV1_5ReasonsWhy',link:'https://www.facebook.com/?feed_demo_ad=120243240387500271\u0026h=AQIFpFiE4gq955_5k1PfhkJs3Dg',cost:300.03,leads:2,cpl:150.015,qa:1,cpqa:300.03,mql:null,cpmql:null,sql:null,cpsql:null,cust:0,cac:null,hookRate:16.463036,holdRate:12.578616,ctrAll:0.662663,ctrLink:0.538414,cpm:62.130876,impr:4829},
+{name:'Animated - ThisIsWhatHappens - Hook 14 - 55 - Problem-Solution Lead 2 - CIDZR27C8C',link:null,cost:290.66,leads:3,cpl:96.886667,qa:0,cpqa:null,mql:1,cpmql:290.66,sql:null,cpsql:null,cust:0,cac:null,hookRate:47.496653,holdRate:7.976325,ctrAll:0.870147,ctrLink:0.589023,cpm:38.910308,impr:7470},
+{name:'Animated - ThisIsWhatHappens - Hook 15 - 55 - Problem-Solution Lead 3 - CIDV0VPB29',link:null,cost:255.45,leads:1,cpl:255.45,qa:0,cpqa:null,mql:null,cpmql:null,sql:null,cpsql:null,cust:0,cac:null,hookRate:56.625401,holdRate:6.990553,ctrAll:1.115696,ctrLink:0.810026,cpm:39.041724,impr:6543},
+{name:'VHK93_Hook3 | VB28_Animated | VV20_ThisIsWhatHappens',link:'https://www.facebook.com/?feed_demo_ad=120243240387490271\u0026h=AQKSxl-yHgUj0SPPalTfKubqdmU',cost:202.93,leads:0,cpl:null,qa:0,cpqa:null,mql:null,cpmql:null,sql:null,cpsql:null,cust:0,cac:null,hookRate:38.4,holdRate:8.823529,ctrAll:1.552941,ctrLink:1.270588,cpm:47.748235,impr:4250},
+{name:'VHK98_Hook7 | VB28_Animated | VV20_ThisIsWhatHappens',link:'https://www.facebook.com/?feed_demo_ad=120243240386940271\u0026h=AQL4NHqsuAm0WRerPv6Wmy8eB1g',cost:154.76,leads:0,cpl:null,qa:0,cpqa:null,mql:null,cpmql:null,sql:null,cpsql:null,cust:0,cac:null,hookRate:52.227289,holdRate:6.715917,ctrAll:1.29779,ctrLink:0.982112,cpm:54.282708,impr:2851},
+{name:'VHK23_HVAC | VB11_ControlYouShouldbeOut | VV10_YouSuck',link:'https://www.facebook.com/?feed_demo_ad=120243240387280271\u0026h=AQK-dqtgLGDnqctyGbgioHE5L08',cost:97.97,leads:0,cpl:null,qa:0,cpqa:null,mql:null,cpmql:null,sql:null,cpsql:null,cust:0,cac:null,hookRate:16.903915,holdRate:23.157895,ctrAll:0.88968,ctrLink:0.415184,cpm:58.107948,impr:1686},
+{name:'VHK23_HVAC | VB10_ControlWaitDontTellMe | VV9_ItsImpossible',link:'https://www.facebook.com/?feed_demo_ad=120243240386880271\u0026h=AQLG5JEgXMh4HkjpqANw7ubuK7A',cost:75.3,leads:0,cpl:null,qa:0,cpqa:null,mql:null,cpmql:null,sql:null,cpsql:null,cust:1,cac:75.3,hookRate:23.9819,holdRate:36.320755,ctrAll:0.565611,ctrLink:0.339367,cpm:85.180995,impr:884},
+{name:'VHK1_Hook1HereAre5RW | VB2_Short | VV1_5ReasonsWhy',link:'https://www.facebook.com/?feed_demo_ad=120243240387300271\u0026h=AQL0pJhW-vqIOYpVHU4nUePUlE0',cost:55.04,leads:1,cpl:55.04,qa:1,cpqa:55.04,mql:1,cpmql:55.04,sql:1,cpsql:55.04,cust:0,cac:null,hookRate:24.290221,holdRate:10.822511,ctrAll:0.736067,ctrLink:0.315457,cpm:57.87592,impr:951},
+{name:'VHK69_RegularCTA | VB19_NewBackPocket | VV15_GreatHiringPartner',link:'https://www.facebook.com/?feed_demo_ad=120244211447130271\u0026h=AQKkx-7kJzYNZ8DAHBtmK_9LPHM',cost:25.39,leads:0,cpl:null,qa:0,cpqa:null,mql:null,cpmql:null,sql:2,cpsql:12.695,cust:0,cac:null,hookRate:30.670927,holdRate:10.416667,ctrAll:0.638978,ctrLink:0,cpm:81.118211,impr:313},
+{name:'VHK69_RegularCTA | VB20_WhatIsLike | VV15_GreatHiringPartner',link:'https://www.facebook.com/?feed_demo_ad=120244323399970271\u0026h=AQKQryF7ipAPWaYd-Q4CQSFH3Nc',cost:4.81,leads:0,cpl:null,qa:0,cpqa:null,mql:null,cpmql:null,sql:null,cpsql:null,cust:0,cac:null,hookRate:18.681319,holdRate:11.764706,ctrAll:0,ctrLink:0,cpm:52.857143,impr:91},
+{name:'VHK69_RegularCTA | VB21_TheYearYouFinallyFix | VV15_GreatHiringPartner',link:'https://www.facebook.com/?feed_demo_ad=120244323400440271\u0026h=AQIDkhx1Fs6eNm5zQdUQInstOjM',cost:0.57,leads:0,cpl:null,qa:0,cpqa:null,mql:null,cpmql:null,sql:null,cpsql:null,cust:0,cac:null,hookRate:50,holdRate:0,ctrAll:0,ctrLink:0,cpm:95,impr:6}
+];
+const DATA_STATICS = [
+{name:'SC54_WereHiringSystem | SV18_BlackText',link:'https://www.facebook.com/?feed_demo_ad=120243240387310271\u0026h=AQIhhyQ-Zd04OtZhiyqGdbupTk0',cost:7988.67,leads:30,cpl:266.289,qa:14,cpqa:570.619286,mql:10,cpmql:798.867,sql:11,cpsql:726.242727,cust:4,cac:1997.1675,ctrAll:0.819254,ctrLink:0.419549,cpm:45.29238,impr:176380}
+];
+const DATA_COPY = [
+{name:'CHK2_TiredOfWastingHours | CB2_KingsRansom',link:'https://www.facebook.com/?feed_demo_ad=120243240387310271\u0026h=AQIhhyQ-Zd04OtZhiyqGdbupTk0',cost:14330.27,leads:65,cpl:220.465692,qa:30,cpqa:477.675667,mql:19,cpmql:754.224737,sql:23,cpsql:623.055217,cust:7,cac:2047.181429,ctrAll:0.873364,ctrLink:0.504341,cpm:45.627195,impr:314073},
+{name:'CHK33_ItAlwaysStarts | CB10_ABlackHole',link:'https://www.facebook.com/?feed_demo_ad=120244061607300271\u0026h=AQJEpnFV55Fx2HSlJ6bo87Pro7g',cost:406.39,leads:2,cpl:203.195,qa:1,cpqa:406.39,mql:1,cpmql:406.39,sql:0,cpsql:null,cust:1,cac:406.39,ctrAll:1.01897,ctrLink:0.715447,cpm:44.053117,impr:9225},
+{name:'CHK31_HowManyHours | CB8_WhatFloodsIn',link:'https://www.facebook.com/?feed_demo_ad=120244061607280271\u0026h=AQIbCiBdJ1M0qM6a5ATjM8FEOU0',cost:63.1,leads:1,cpl:63.1,qa:0,cpqa:null,mql:0,cpmql:null,sql:0,cpsql:null,cust:1,cac:63.1,ctrAll:1.336005,ctrLink:1.002004,cpm:42.150969,impr:1497},
+{name:'CHK11_HeresWhy$1M+ | CB7_GreatHiringPartner2',link:'https://www.facebook.com/?feed_demo_ad=120244211447130271\u0026h=AQKkx-7kJzYNZ8DAHBtmK_9LPHM',cost:30.52,leads:0,cpl:null,qa:0,cpqa:null,mql:0,cpmql:null,sql:1,cpsql:30.52,cust:1,cac:30.52,ctrAll:0.496278,ctrLink:0,cpm:75.73201,impr:403},
+{name:'CHK10_WeDareYou | CB6_GreatHiringPartner1',link:'https://www.facebook.com/?feed_demo_ad=120244323400450271\u0026h=AQLF3T15sZRNoc8h4YRJrmQIBQE',cost:0.25,leads:0,cpl:null,qa:0,cpqa:null,mql:0,cpmql:null,sql:2,cpsql:0.125,cust:0,cac:null,ctrAll:0,ctrLink:0,cpm:35.714286,impr:7}
+];
+const DATA_VIDEO_CONCEPTS = [
+{name:'ThisIsWhatHappens',link:'https://www.facebook.com/?feed_demo_ad=120244058730510271\u0026h=AQIuNGIToOuGx1o8ztNpppuEmmg',cost:3247.18,leads:17,cpl:191.010588,qa:9,cpqa:360.797778,mql:4,cpmql:811.795,sql:4,cpsql:811.795,cust:0,cac:null,hookRate:48.233466,holdRate:8.056859,ctrAll:1.174963,ctrLink:0.804209,cpm:44.261218,impr:73364},
+{name:'VV8_EasierThanThat',link:'https://www.facebook.com/?feed_demo_ad=120243240387430271\u0026h=AQKPruGyaAvP3J3-Y29YHMPczDY',cost:2305.95,leads:14,cpl:164.710714,qa:4,cpqa:576.4875,mql:4,cpmql:576.4875,sql:2,cpsql:1152.975,cust:0,cac:null,hookRate:35.317579,holdRate:6.46438,ctrAll:0.723125,ctrLink:0.443566,cpm:42.976554,impr:53656},
+{name:'VV12_3ReasonsWhy',link:'https://www.facebook.com/?feed_demo_ad=120243240387520271\u0026h=AQJXmIn4Ip6xnfp0_8gZHeZ3AmE',cost:729.62,leads:4,cpl:182.405,qa:2,cpqa:364.81,mql:1,cpmql:729.62,sql:3,cpsql:243.206667,cust:0,cac:null,hookRate:27.060176,holdRate:19.206799,ctrAll:0.789575,ctrLink:0.444615,cpm:55.931008,impr:13045},
+{name:'VV1_5ReasonsWhy',link:'https://www.facebook.com/?feed_demo_ad=120243240387500271\u0026h=AQIFpFiE4gq955_5k1PfhkJs3Dg',cost:355.07,leads:3,cpl:118.356667,qa:2,cpqa:177.535,mql:1,cpmql:355.07,sql:1,cpsql:355.07,cust:0,cac:null,hookRate:17.750865,holdRate:12.183236,ctrAll:0.67474,ctrLink:0.50173,cpm:61.430796,impr:5780},
+{name:'VV10_YouSuck',link:'https://www.facebook.com/?feed_demo_ad=120243240387280271\u0026h=AQK-dqtgLGDnqctyGbgioHE5L08',cost:97.97,leads:0,cpl:null,qa:0,cpqa:null,mql:0,cpmql:null,sql:0,cpsql:null,cust:0,cac:null,hookRate:16.903915,holdRate:23.157895,ctrAll:0.88968,ctrLink:0.415184,cpm:58.107948,impr:1686},
+{name:'VV9_ItsImpossible',link:'https://www.facebook.com/?feed_demo_ad=120243240386880271\u0026h=AQLG5JEgXMh4HkjpqANw7ubuK7A',cost:75.3,leads:0,cpl:null,qa:0,cpqa:null,mql:0,cpmql:null,sql:0,cpsql:null,cust:1,cac:75.3,hookRate:23.9819,holdRate:36.320755,ctrAll:0.565611,ctrLink:0.339367,cpm:85.180995,impr:884},
+{name:'VB19_NewBackPocket',link:'https://www.facebook.com/?feed_demo_ad=120244211447130271\u0026h=AQKkx-7kJzYNZ8DAHBtmK_9LPHM',cost:25.39,leads:0,cpl:null,qa:0,cpqa:null,mql:0,cpmql:null,sql:2,cpsql:12.695,cust:0,cac:null,hookRate:30.670927,holdRate:10.416667,ctrAll:0.638978,ctrLink:0,cpm:81.118211,impr:313},
+{name:'VB20_WhatIsLike',link:'https://www.facebook.com/?feed_demo_ad=120244323399970271\u0026h=AQKQryF7ipAPWaYd-Q4CQSFH3Nc',cost:4.81,leads:0,cpl:null,qa:0,cpqa:null,mql:0,cpmql:null,sql:0,cpsql:null,cust:0,cac:null,hookRate:18.681319,holdRate:11.764706,ctrAll:0,ctrLink:0,cpm:52.857143,impr:91},
+{name:'VB21_TheYearYouFinallyFix',link:'https://www.facebook.com/?feed_demo_ad=120244323400440271\u0026h=AQIDkhx1Fs6eNm5zQdUQInstOjM',cost:0.57,leads:0,cpl:null,qa:0,cpqa:null,mql:0,cpmql:null,sql:0,cpsql:null,cust:0,cac:null,hookRate:50,holdRate:0,ctrAll:0,ctrLink:0,cpm:95,impr:6}
+];
+const DATA_STATIC_CONCEPTS = [
+{name:'SV18_BlackText',link:'https://www.facebook.com/?feed_demo_ad=120243240387310271\u0026h=AQIhhyQ-Zd04OtZhiyqGdbupTk0',cost:7988.67,leads:30,cpl:266.289,qa:14,cpqa:570.619286,mql:10,cpmql:798.867,sql:11,cpsql:726.242727,cust:4,cac:1997.1675,ctrAll:0.819254,ctrLink:0.419549,cpm:45.29238,impr:176380}
+];
+const DATA_SPOKES_M = [
+
+];
+const DATA_SPOKES_F = [
+
+];
+
+const TABS = [
+  {id:'videoConcepts', label:'Video Concepts', data:DATA_VIDEO_CONCEPTS, isVideo:true},
+  {id:'videos', label:'Video Variations', data:DATA_VIDEOS, isVideo:true},
+  {id:'staticConcepts', label:'Static Concepts', data:DATA_STATIC_CONCEPTS, isVideo:false},
+  {id:'statics', label:'Static Variations', data:DATA_STATICS, isVideo:false},
+  {id:'copy', label:'Copy', data:DATA_COPY, isVideo:false},
+  {id:'spokesM', label:'M (Spokesperson)', data:DATA_SPOKES_M, isVideo:true, hasGender:true},
+  {id:'spokesF', label:'F (Spokesperson)', data:DATA_SPOKES_F, isVideo:true, hasGender:true}
+];
+
+let activeTab='videoConcepts', sortCol='cpqa', sortAsc=true, searchQ='';
+let filterWinners=false, filterSpend=false;
+
+const dash='<span class="nd">&mdash;</span>';
+const fmtD=v=>'$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtD0=v=>'$'+Math.round(v).toLocaleString('en-US');
+const fmtN=v=>Number.isInteger(v)?v.toLocaleString('en-US'):v.toLocaleString('en-US',{maximumFractionDigits:1});
+const fmtP1=v=>v.toFixed(1)+'%';
+const fmtP2=v=>v.toFixed(2)+'%';
+const fmtComma=v=>Math.round(v).toLocaleString('en-US');
+
+function badgeClass(val,metric){
+  if(val==null) return 'nd';
+  if(metric==='cpqa'){ if(val<=500)return'wk'; if(val<=600)return'of'; return'ak'; }
+  if(metric==='hookRate'||metric==='holdRate'){ if(val>=20)return'wk'; if(val>=15)return'of'; return'ak'; }
+  return '';
+}
+function badgeHTML(val,metric,fmt){
+  if(val==null) return dash;
+  return '<span class="badge '+badgeClass(val,metric)+'">'+fmt(val)+'</span>';
+}
+function viewLink(url){
+  if(!url) return '<span class="no-link">&mdash;</span>';
+  return '<a class="view-link" href="'+url+'" target="_blank" rel="noopener">View <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3.5 1.5h7v7M10.5 1.5L1.5 10.5"/></svg></a>';
+}
+
+function getCols(tabId){
+  const t=TABS.find(x=>x.id===tabId);
+  const cols=[
+    {key:'idx',label:'#',sticky:'stick-idx'},
+    {key:'name',label:'Name',sticky:'stick-name',sortable:true}
+  ];
+  if(t.hasGender){ cols.push({key:'gender',label:'Gender',sortable:true}); }
+  cols.push(
+    {key:'link',label:'Ad'},
+    {key:'cost',label:'Spend',sortable:true},
+    {key:'leads',label:'Leads',sortable:true},
+    {key:'cpl',label:'CPL',sortable:true},
+    {key:'qa',label:'QA',sortable:true},
+    {key:'cpqa',label:'CPQA',sortable:true},
+    {key:'mql',label:'MQL',sortable:true},
+    {key:'cpmql',label:'CPMQL',sortable:true},
+    {key:'sql',label:'SQL',sortable:true},
+    {key:'cpsql',label:'CPSQL',sortable:true},
+    {key:'cust',label:'Cust',sortable:true},
+    {key:'cac',label:'CAC',sortable:true}
+  );
+  if(t.isVideo){
+    cols.push({key:'hookRate',label:'Hook %',sortable:true});
+    cols.push({key:'holdRate',label:'Hold %',sortable:true});
+  }
+  cols.push({key:'ctrAll',label:'CTR (all)',sortable:true});
+  cols.push({key:'ctrLink',label:'CTR (link)',sortable:true});
+  cols.push({key:'cpm',label:'CPM',sortable:true});
+  cols.push({key:'impr',label:'Impressions',sortable:true});
+  return cols;
+}
+
+function renderTabs(){
+  document.getElementById('tabBar').innerHTML = TABS.map(t=>
+    '<button class="tab-btn'+(t.id===activeTab?' active':'')+'" onclick="switchTab(\''+t.id+'\')">'+t.label+' <span class="cnt">('+t.data.length+')</span></button>'
+  ).join('');
+}
+function switchTab(id){ activeTab=id; sortCol='cpqa'; sortAsc=true; renderTabs(); updateLegend(); renderTable(); }
+function updateLegend(){
+  const t=TABS.find(x=>x.id===activeTab);
+  let html='<div class="legend-item"><span class="legend-dot dot-green"></span> CPQA &le; $500</div>'+
+    '<div class="legend-item"><span class="legend-dot dot-yellow"></span> CPQA $500&ndash;$600</div>'+
+    '<div class="legend-item"><span class="legend-dot dot-red"></span> CPQA &gt; $600</div>'+
+    '<div class="legend-item"><span class="legend-dot dot-gray"></span> No Data</div>';
+  if(t&&t.isVideo){
+    html+='<div class="legend-item"><span class="legend-dot dot-green"></span> Hook/Hold &ge; 20%</div>'+
+      '<div class="legend-item"><span class="legend-dot dot-yellow"></span> Hook/Hold 15&ndash;20%</div>'+
+      '<div class="legend-item"><span class="legend-dot dot-red"></span> Hook/Hold &lt; 15%</div>';
+  }
+  document.getElementById('legend').innerHTML=html;
+}
+
+function renderTable(){
+  const t=TABS.find(x=>x.id===activeTab);
+  if(!t) return;
+  const cols=getCols(activeTab);
+  let rows=[...t.data];
+  if(searchQ){ const q=searchQ.toLowerCase(); rows=rows.filter(r=>r.name.toLowerCase().includes(q)); }
+  if(filterWinners){ rows=rows.filter(r=>r.cpqa!=null&&r.cpqa>0&&r.cpqa<=500); }
+  if(filterSpend){ rows=rows.filter(r=>r.cost!=null&&r.cost>=500); }
+  rows.sort((a,b)=>{
+    if(a.isTotal&&!b.isTotal) return -1;
+    if(!a.isTotal&&b.isTotal) return 1;
+    if(a.isTotal&&b.isTotal){
+      if(a.gender==='M'&&b.gender==='F') return -1;
+      if(a.gender==='F'&&b.gender==='M') return 1;
+    }
+    let va=a[sortCol], vb=b[sortCol];
+    if(va==null&&vb==null)return 0;
+    if(va==null)return 1;
+    if(vb==null)return -1;
+    if(typeof va==='string')return sortAsc?va.localeCompare(vb):vb.localeCompare(va);
+    return sortAsc?va-vb:vb-va;
+  });
+  const totalRows=rows.length;
+  let html='<table><thead><tr>';
+  cols.forEach(c=>{
+    const sk=c.sticky?' '+c.sticky:'';
+    const sd=c.key===sortCol?' sorted':'';
+    const ar=c.sortable?'<span class="arrow">'+(c.key===sortCol?(sortAsc?'\u25B2':'\u25BC'):'\u25B2')+'</span>':'';
+    const oc=c.sortable?' onclick="doSort(\''+c.key+'\')"':'';
+    html+='<th class="'+sk+sd+'"'+oc+'>'+c.label+ar+'</th>';
+  });
+  html+='</tr></thead><tbody>';
+  rows.forEach((r,i)=>{
+    const trCls=r.isTotal?' class="total-row"':'';
+    html+='<tr'+trCls+'>';
+    cols.forEach(c=>{
+      const sk=c.sticky?' '+c.sticky:'';
+      switch(c.key){
+        case 'idx': html+='<td class="idx-col'+sk+'">'+(r.isTotal?'':(i+1))+'</td>'; break;
+        case 'name': html+='<td class="name-col'+sk+'">'+r.name+'</td>'; break;
+        case 'gender':
+          if(r.isTotal){ html+='<td>'+(r.gender==='M'?'<span class="gender-m">M</span>':'<span class="gender-f">F</span>')+'</td>'; }
+          else { html+='<td>'+(r.gender==='M'?'<span class="gender-m">M</span>':r.gender==='F'?'<span class="gender-f">F</span>':dash)+'</td>'; }
+          break;
+        case 'link': html+='<td>'+viewLink(r.link)+'</td>'; break;
+        case 'cost': html+='<td class="num">'+(r.cost!=null?fmtD(r.cost):dash)+'</td>'; break;
+        case 'leads': case 'qa': case 'mql': case 'sql': case 'cust':
+          html+='<td class="num">'+(r[c.key]!=null?fmtN(r[c.key]):dash)+'</td>'; break;
+        case 'cpl': case 'cpmql': case 'cpsql': case 'cac':
+          html+='<td class="num">'+(r[c.key]!=null?fmtD0(r[c.key]):dash)+'</td>'; break;
+        case 'cpqa': html+='<td class="num">'+badgeHTML(r.cpqa,'cpqa',fmtD0)+'</td>'; break;
+        case 'hookRate': html+='<td class="num">'+badgeHTML(r.hookRate,'hookRate',fmtP1)+'</td>'; break;
+        case 'holdRate': html+='<td class="num">'+badgeHTML(r.holdRate,'holdRate',fmtP1)+'</td>'; break;
+        case 'ctrAll': html+='<td class="num">'+(r.ctrAll!=null?fmtP2(r.ctrAll):dash)+'</td>'; break;
+        case 'ctrLink': html+='<td class="num">'+(r.ctrLink!=null?fmtP2(r.ctrLink):dash)+'</td>'; break;
+        case 'cpm': html+='<td class="num">'+(r.cpm!=null?fmtD(r.cpm):dash)+'</td>'; break;
+        case 'impr': html+='<td class="num">'+(r.impr!=null?fmtComma(r.impr):dash)+'</td>'; break;
+        default: html+='<td class="num">'+dash+'</td>';
+      }
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  document.getElementById('panels').innerHTML='<div class="tab-panel active"><div class="table-wrap">'+html+'</div><div class="row-count">'+totalRows+' of '+t.data.length+' creatives</div></div>';
+}
+function doSort(col){ if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=true;} renderTable(); }
+function toggleFilter(type){
+  if(type==='winners'){ filterWinners=!filterWinners; document.getElementById('btnWinners').classList.toggle('active',filterWinners); }
+  else if(type==='spend'){ filterSpend=!filterSpend; document.getElementById('btnSpend').classList.toggle('active',filterSpend); }
+  renderTable();
+}
+document.getElementById('search').addEventListener('input',e=>{ searchQ=e.target.value; renderTable(); });
+renderTabs(); updateLegend(); renderTable();
+</script>
+</body>
+</html>
