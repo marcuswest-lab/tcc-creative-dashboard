@@ -49,6 +49,28 @@ tbody tr:hover .col-idx,tbody tr:hover .col-name{background:#1a1f2e}
 .view-link:hover{color:#93C5FD}
 .view-link svg{width:11px;height:11px}
 .row-count{text-align:right;color:#475569;font-size:12px;margin-top:8px}
+
+.cf-wrap{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;padding:10px 12px;background:#151922;border:1px solid #1E293B;border-radius:10px}
+.cf-wrap.collapsed{padding:6px 12px}
+.cf-wrap.collapsed #cf-rows{display:none}
+.cf-header{display:flex;align-items:center;gap:10px;font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:.5px}
+.cf-toggle{display:inline-flex;align-items:center;gap:6px;background:transparent;border:none;color:#94A3B8;font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Sans',sans-serif;cursor:pointer;padding:2px 0}
+.cf-toggle:hover{color:#E2E8F0}
+.cf-caret{display:inline-block;transition:transform .15s;font-size:9px;color:#475569}
+.cf-wrap.collapsed .cf-caret{transform:rotate(-90deg)}
+.cf-count{background:#3B82F6;color:#fff;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600;letter-spacing:0}
+.cf-add{padding:5px 12px;background:#1E293B;border:1px solid #334155;border-radius:6px;color:#94A3B8;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.cf-add:hover{color:#E2E8F0;border-color:#475569}
+.cf-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px}
+.cf-connector{padding:5px 10px;background:#0C0F14;border:1px solid #334155;border-radius:6px;color:#FBBF24;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;font-weight:600;min-width:64px}
+.cf-select,.cf-input{padding:5px 8px;background:#0C0F14;border:1px solid #334155;border-radius:6px;color:#E2E8F0;font-family:'DM Sans',sans-serif;font-size:12px;outline:none}
+.cf-select:focus,.cf-input:focus,.cf-connector:focus{border-color:#3B82F6}
+.cf-select{cursor:pointer;min-width:130px}
+.cf-op{min-width:60px;cursor:pointer}
+.cf-input{width:100px;font-family:'JetBrains Mono',monospace}
+.cf-remove{padding:4px 8px;background:transparent;border:none;color:#64748B;font-size:14px;cursor:pointer;border-radius:6px;line-height:1}
+.cf-remove:hover{color:#F87171;background:#1a1f2e}
+.cf-empty{color:#475569;font-size:12px;font-style:italic;margin-top:6px}
 </style>
 </head>
 <body>
@@ -61,6 +83,12 @@ tbody tr:hover .col-idx,tbody tr:hover .col-name{background:#1a1f2e}
 <button class="fbtn" id="btnWinners" onclick="toggleFilter('winners')">Winners (CPQA &le; $500)</button>
 <button class="fbtn" id="btnSpend" onclick="toggleFilter('spend')">Min $1,500 Spend</button>
 </div>
+
+<div class="cf-wrap" id="cf-wrap">
+<div class="cf-header"><button class="cf-toggle" onclick="toggleCustomFilter()"><span class="cf-caret">&#9660;</span>Custom filters<span class="cf-count" id="cf-count" style="display:none">0</span></button><button class="cf-add" onclick="addCondition()">+ Add condition</button></div>
+<div id="cf-rows"></div>
+</div>
+
 <div class="tab-bar" id="tabBar"></div>
 <div class="tbl-wrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
 <div class="row-count" id="rowCount"></div>
@@ -170,6 +198,7 @@ function renderTable(){
   if(filters.winners&&(r.cpqa==null||r.cpqa>500))return false;
   return true;
  });
+ filtered = filtered.filter(__cfEval);
  filtered.sort((a,b)=>{
   let va=a[sortCol],vb=b[sortCol];
   if(va==null&&vb==null)return 0;
@@ -214,5 +243,127 @@ function doSort(col){if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=
 function toggleFilter(f){filters[f]=!filters[f];document.getElementById(f==='winners'?'btnWinners':'btnSpend').classList.toggle('active');renderTable();}
 document.getElementById('search').addEventListener('input',renderTable);
 buildTabs();buildLegend();renderTable();
+
+// ===== Custom filters (AND/OR) =====
+var __cfConditions = [];
+function __cfGetMetrics(){
+  try{
+    var cols = getCols();
+    return cols.filter(function(c){return c.sortable && c.key!=='name';});
+  }catch(e){return [];}
+}
+function addCondition(){
+  __cfConditions.push({metric:'',op:'gte',val:null,connector:'AND'});
+  var w=document.getElementById('cf-wrap'); if(w) w.classList.remove('collapsed');
+  __cfRender();
+}
+function removeCondition(i){__cfConditions.splice(i,1); __cfRender(); if(window.__cfOrigRender) window.__cfOrigRender();}
+function updateCondition(i,field,value){
+  if(field==='val') value = (value===''?null:parseFloat(value));
+  __cfConditions[i][field]=value;
+  __cfUpdateCount();
+  if(window.__cfOrigRender) window.__cfOrigRender();
+}
+function toggleCustomFilter(){var w=document.getElementById('cf-wrap'); if(w) w.classList.toggle('collapsed');}
+function __cfUpdateCount(){
+  var active=__cfConditions.filter(function(c){return c.metric&&c.val!=null;}).length;
+  var b=document.getElementById('cf-count');
+  if(!b) return;
+  if(active>0){b.textContent=active; b.style.display='inline-block';}
+  else{b.style.display='none';}
+}
+function __cfRender(){
+  var cols=__cfGetMetrics();
+  var host=document.getElementById('cf-rows');
+  if(!host) return;
+  if(!__cfConditions.length){host.innerHTML='<div class="cf-empty">No conditions \u2014 click \u201C+ Add condition\u201D to filter by any metric.</div>'; __cfUpdateCount(); return;}
+  var html='';
+  __cfConditions.forEach(function(c,i){
+    html+='<div class="cf-row">';
+    if(i===0){html+='<span class="cf-connector" style="background:transparent;border:none;color:#475569;cursor:default;text-align:right">WHERE</span>';}
+    else{
+      html+='<select class="cf-connector" onchange="updateCondition('+i+',\'connector\',this.value)">';
+      html+='<option value="AND"'+(c.connector==='AND'?' selected':'')+'>AND</option>';
+      html+='<option value="OR"'+(c.connector==='OR'?' selected':'')+'>OR</option>';
+      html+='</select>';
+    }
+    html+='<select class="cf-select" onchange="updateCondition('+i+',\'metric\',this.value)">';
+    html+='<option value="">Metric...</option>';
+    cols.forEach(function(col){html+='<option value="'+col.key+'"'+(c.metric===col.key?' selected':'')+'>'+col.label+'</option>';});
+    html+='</select>';
+    html+='<select class="cf-select cf-op" onchange="updateCondition('+i+',\'op\',this.value)">';
+    html+='<option value="gte"'+(c.op==='gte'?' selected':'')+'>\u2265</option>';
+    html+='<option value="gt"'+(c.op==='gt'?' selected':'')+'>></option>';
+    html+='<option value="lte"'+(c.op==='lte'?' selected':'')+'>\u2264</option>';
+    html+='<option value="lt"'+(c.op==='lt'?' selected':'')+'><</option>';
+    html+='</select>';
+    html+='<input type="number" step="any" class="cf-input" placeholder="value" value="'+(c.val==null?'':c.val)+'" oninput="updateCondition('+i+',\'val\',this.value)">';
+    html+='<button class="cf-remove" onclick="removeCondition('+i+')" title="Remove">\u2715</button>';
+    html+='</div>';
+  });
+  host.innerHTML=html;
+  __cfUpdateCount();
+}
+function __cfEval(r){
+  if(!__cfConditions.length) return true;
+  var active=__cfConditions.filter(function(c){return c.metric&&c.val!=null;});
+  if(!active.length) return true;
+  var result=null;
+  for(var i=0;i<active.length;i++){
+    var c=active[i]; var v=r[c.metric]; var ok;
+    if(v==null) ok=false;
+    else if(c.op==='gte') ok=v>=c.val;
+    else if(c.op==='gt')  ok=v>c.val;
+    else if(c.op==='lte') ok=v<=c.val;
+    else if(c.op==='lt')  ok=v<c.val;
+    else ok=false;
+    if(result===null) result=ok;
+    else if(c.connector==='OR') result=result||ok;
+    else result=result&&ok;
+  }
+  return result===null?true:result;
+}
+// Monkey-patch the table body after each render so condition-filtered rows are hidden.
+// We do this rather than touching renderTable internals — guarantees compatibility.
+function __cfApplyToTable(){
+  var tbody = document.querySelector('tbody');
+  if(!tbody) return;
+  var rows = tbody.querySelectorAll('tr');
+  // We need access to the row data. The data is held in DATA[...] but we can't easily index here.
+  // Instead, store __cfData on the global window and require the dashboard's render path to call __cfFilterRows(rows).
+}
+// Hook: wrap window.renderTable (after page load) to filter rows BEFORE existing render runs.
+// We do this by intercepting the DATA via a Proxy-like approach: when renderTable runs, we
+// temporarily replace the source array's filter results. Simpler: post-render DOM filter using
+// the row's metric values stashed as data-* on each <tr>. NOT possible without source mods.
+// So we take the cleanest path: re-render via the existing pipeline, then hide rows where
+// __cfEval returns false based on a per-row data attribute we attach.
+function __cfPatchRows(rowDataList){
+  // Called by patched renderTable with the rendered row data list (same order as tbody rows).
+  var tbody = document.querySelector('tbody');
+  if(!tbody || !rowDataList) return;
+  var trs = tbody.querySelectorAll('tr');
+  var shown = 0;
+  for(var i=0;i<trs.length;i++){
+    if(__cfEval(rowDataList[i])){trs[i].style.display=''; shown++;}
+    else trs[i].style.display='none';
+  }
+  // Update row counter if it exists
+  var rc = document.getElementById('rowCount');
+  if(rc){
+    var txt = rc.textContent || '';
+    var m = txt.match(/of\s+(\d+)/);
+    if(m){rc.textContent = shown 
+window.__cfOrigRender = (typeof renderTable === 'function') ? renderTable : null;
+(function(){
+  if(typeof switchTab === 'function'){
+    var __cfOrigSwitch = switchTab;
+    switchTab = function(){var r = __cfOrigSwitch.apply(this, arguments); __cfRender(); return r;};
+  }
+  __cfRender();
+})();
++ ' of ' + m[1] + ' creatives';}
+  }
+}
 </script>
 </body></html>
