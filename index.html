@@ -305,7 +305,7 @@ function __cfRender(){
   __cfUpdateCount();
 }
 function __cfEval(r){
-  if(!__cfConditions.length) return true;
+  if(typeof __cfConditions==="undefined" || !__cfConditions || !__cfConditions.length) return true;
   var active=__cfConditions.filter(function(c){return c.metric&&c.val!=null;});
   if(!active.length) return true;
   var result=null;
