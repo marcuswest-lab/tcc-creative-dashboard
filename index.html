@@ -54,7 +54,150 @@ tbody tr:hover .col-idx,tbody tr:hover .col-name{background:#1a1f2e}
 <body>
 <div class="wrap">
 <h1>TCC Creative Performance Dashboard</h1>
-<div class="subtitle">All-Time Performance Data &mdash; Generated June 22, 2026</div>
+<div class="subtitle">All-Time Performance Data &mdash; Generated June 24, 2026</div>
+
+<div class="bi-tabs">
+  <button class="bi-tab active" id="bi-tab-table" type="button">Performance Table</button>
+  <button class="bi-tab" id="bi-tab-insights" type="button">Insights &amp; Forecaster</button>
+</div>
+<div class="bi-wrap bi-panel">
+  <div class="bi-cards"><div class="bi-card"><div class="bi-card-label">Static Win Rate</div><div class="bi-card-val">27.3%</div><div class="bi-card-sub">9/33 launched</div></div><div class="bi-card"><div class="bi-card-label">Static $/Winner</div><div class="bi-card-val">$20,729</div><div class="bi-card-sub">avg lifetime spend</div></div><div class="bi-card"><div class="bi-card-label">Video Win Rate</div><div class="bi-card-val">18.3%</div><div class="bi-card-sub">22/120 launched</div></div><div class="bi-card"><div class="bi-card-label">Video $/Winner</div><div class="bi-card-val">$12,818</div><div class="bi-card-sub">avg lifetime spend</div></div><div class="bi-card"><div class="bi-card-label">Blended Win Rate</div><div class="bi-card-val">20.3%</div><div class="bi-card-sub">31/153 launched</div></div><div class="bi-card"><div class="bi-card-label">Blended $/Winner</div><div class="bi-card-val">$15,115</div><div class="bi-card-sub">avg lifetime spend</div></div><div class="bi-card"><div class="bi-card-label">Top-3 Avg Winner</div><div class="bi-card-val">$77,552</div><div class="bi-card-sub">top 3 winners, blended</div></div><div class="bi-card"><div class="bi-card-label">Top Winner</div><div class="bi-card-val">$161,674</div><div class="bi-card-sub">single best winner</div></div></div>
+  <div class="bi-batch">
+    <div class="bi-batch-head">
+      <span class="bi-batch-title">Batch Forecaster</span>
+      <span class="bi-batch-note">Creatives &amp; batches/week to sustain spend &middot; status-classifier winners, no safety margin</span>
+    </div>
+    <div class="bi-batch-controls">
+      <label class="bi-ctl">Spend/day
+        <input type="number" id="bi-daily" value="4927" min="0" step="500">
+      </label>
+      <label class="bi-ctl">Winner spend basis
+        <select id="bi-basis">
+          <option value="avg">Avg $/winner ($15,115)</option>
+          <option value="top3">Top-3 avg ($77,552)</option>
+          <option value="top">Top winner ($161,674)</option>
+        </select>
+      </label>
+      <label class="bi-ctl">Win rate <span id="bi-wr-out" class="bi-wr-out">15%</span>
+        <input type="range" id="bi-wr" min="1" max="30" step="1" value="15">
+      </label>
+    </div>
+    <div class="bi-batch-grid" id="bi-grid"></div>
+    <div class="bi-presets">
+      <div class="bi-presets-title">Standard projections (batches/week)</div>
+      <table class="bi-ptable">
+        <thead><tr><th>Win rate</th><th>Winners/wk</th><th>Creatives to test/wk</th><th>Batches/wk</th></tr></thead>
+        <tbody id="bi-ptbody"></tbody>
+      </table>
+      <div class="bi-presets-foot">70% video / 30% static mix &middot; 5 videos or 7 statics per batch</div>
+    </div>
+  </div>
+</div>
+<style>
+.bi-tabs{max-width:1700px;margin:0 auto 14px;display:inline-flex;background:#151922;border:1px solid #1E293B;border-radius:10px;overflow:hidden}
+.bi-tab{padding:9px 18px;font-size:13px;font-weight:600;color:#64748B;cursor:pointer;background:transparent;border:none;border-right:1px solid #1E293B;font-family:'DM Sans',sans-serif;transition:all .15s}
+.bi-tab:last-child{border-right:none}
+.bi-tab:hover{color:#CBD5E1}
+.bi-tab.active{background:#3B82F6;color:#fff}
+.bi-panel{display:none}
+body.bi-show-insights .bi-panel{display:block}
+body.bi-show-insights .legend,
+body.bi-show-insights .controls,
+body.bi-show-insights .cf-wrap,
+body.bi-show-insights #cf-wrap,
+body.bi-show-insights .tab-bar,
+body.bi-show-insights .table-wrap,
+body.bi-show-insights .row-count{display:none !important}
+.bi-wrap{max-width:1700px;margin:0 auto 22px}
+.bi-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.bi-card{background:#151922;border:1px solid #1E293B;border-radius:10px;padding:12px 14px}
+.bi-card-label{font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.bi-card-val{font-size:22px;font-weight:700;color:#F8FAFC;font-family:'JetBrains Mono',monospace;margin:4px 0 2px}
+.bi-card-sub{font-size:11px;color:#94A3B8}
+.bi-batch{background:#151922;border:1px solid #1E293B;border-radius:10px;padding:14px 16px}
+.bi-batch-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.bi-batch-title{font-size:14px;font-weight:700;color:#F8FAFC}
+.bi-batch-note{font-size:11px;color:#64748B}
+.bi-batch-controls{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.bi-ctl{display:flex;flex-direction:column;gap:5px;font-size:11px;color:#94A3B8;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.bi-ctl input[type=number],.bi-ctl select{padding:7px 10px;background:#0C0F14;border:1px solid #334155;border-radius:6px;color:#E2E8F0;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;min-width:150px}
+.bi-ctl input[type=range]{width:200px;accent-color:#3B82F6}
+.bi-ctl input:focus,.bi-ctl select:focus{border-color:#3B82F6}
+.bi-wr-out{color:#3B82F6;font-family:'JetBrains Mono',monospace}
+.bi-batch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.bi-stat{background:#0C0F14;border:1px solid #1E293B;border-radius:8px;padding:10px 12px}
+.bi-stat-label{font-size:10px;color:#64748B;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.bi-stat-val{font-size:20px;font-weight:700;color:#34D399;font-family:'JetBrains Mono',monospace;margin-top:3px}
+.bi-presets-title{font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px}
+.bi-ptable{width:100%;border-collapse:collapse;font-size:12px}
+.bi-ptable th{text-align:right;padding:6px 12px;color:#94A3B8;font-size:10px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #1E293B}
+.bi-ptable th:first-child{text-align:left}
+.bi-ptable td{text-align:right;padding:6px 12px;font-family:'JetBrains Mono',monospace;color:#CBD5E1;border-bottom:1px solid #1E293B}
+.bi-ptable td:first-child{text-align:left;color:#F8FAFC;font-weight:600}
+.bi-presets-foot{font-size:10px;color:#475569;margin-top:8px;font-style:italic}
+@media(max-width:1100px){.bi-cards,.bi-batch-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+<script>
+(function(){
+  var BI={"daily": 4927, "sWr": 0.2727272727272727, "vWr": 0.18333333333333332, "bWr": 0.20261437908496732, "avg": 15114.98322580645, "top3": 77551.80666666666, "top": 161674.22};
+  var VIDEO_MIX=0.70, STATIC_MIX=0.30, VIDEO_BATCH=5, STATIC_BATCH=7;
+  function basisVal(){
+    var k=document.getElementById('bi-basis').value;
+    return BI[k];
+  }
+  function fmt(n){return n==null?'\u2014':n.toLocaleString('en-US',{maximumFractionDigits:1});}
+  function calc(daily, basis, wr){
+    if(!basis||!wr) return null;
+    var weekly=daily*7;
+    var winners=weekly/basis;
+    var vMake=winners*VIDEO_MIX/wr;
+    var sMake=winners*STATIC_MIX/wr;
+    var creatives=vMake+sMake;
+    var batches=vMake/VIDEO_BATCH+sMake/STATIC_BATCH;
+    return {winners:winners, creatives:creatives, batches:batches};
+  }
+  function render(){
+    var daily=parseFloat(document.getElementById('bi-daily').value)||0;
+    var basis=basisVal();
+    var wr=parseFloat(document.getElementById('bi-wr').value)/100;
+    document.getElementById('bi-wr-out').textContent=Math.round(wr*100)+'%';
+    var r=calc(daily, basis, wr);
+    var grid=document.getElementById('bi-grid');
+    if(!r){grid.innerHTML='<div class="bi-stat" style="grid-column:1/-1"><div class="bi-stat-label">Insufficient winner data</div><div class="bi-stat-val" style="color:#64748B">\u2014</div></div>';}
+    else{
+      grid.innerHTML=
+        stat('Weekly Spend','$'+fmt(daily*7))+
+        stat('Winners Needed/wk',fmt(r.winners))+
+        stat('Creatives to Test/wk',Math.ceil(r.creatives))+
+        stat('Batches/wk',fmt(r.batches));
+    }
+    var presets=[0.10,0.15,0.20];
+    var tb=document.getElementById('bi-ptbody'), rows='';
+    presets.forEach(function(p){
+      var rr=calc(daily, basis, p);
+      if(!rr){rows+='<tr><td>'+(p*100)+'%</td><td>\u2014</td><td>\u2014</td><td>\u2014</td></tr>';}
+      else{rows+='<tr><td>'+(p*100)+'%</td><td>'+fmt(rr.winners)+'</td><td>'+Math.ceil(rr.creatives)+'</td><td>'+fmt(rr.batches)+'</td></tr>';}
+    });
+    tb.innerHTML=rows;
+  }
+  function stat(l,v){return '<div class="bi-stat"><div class="bi-stat-label">'+l+'</div><div class="bi-stat-val">'+v+'</div></div>';}
+  ['bi-daily','bi-basis','bi-wr'].forEach(function(id){
+    document.getElementById(id).addEventListener('input',render);
+  });
+  var tTable=document.getElementById('bi-tab-table'), tIns=document.getElementById('bi-tab-insights');
+  tTable.addEventListener('click',function(){
+    document.body.classList.remove('bi-show-insights');
+    tTable.classList.add('active'); tIns.classList.remove('active');
+  });
+  tIns.addEventListener('click',function(){
+    document.body.classList.add('bi-show-insights');
+    tIns.classList.add('active'); tTable.classList.remove('active');
+    render();
+  });
+  render();
+})();
+</script>
+
 <div class="legend" id="legend"></div>
 <div class="controls">
 <input class="search" id="search" placeholder="Search creatives..." type="text">
@@ -215,139 +358,4 @@ function toggleFilter(f){filters[f]=!filters[f];document.getElementById(f==='win
 document.getElementById('search').addEventListener('input',renderTable);
 buildTabs();buildLegend();renderTable();
 </script>
-<!-- AWARENESS_OVERLAY_BEGIN -->
-<style id="awx-style">
-#awx-tab.awx-tab{cursor:pointer}
-#awx-overlay{position:fixed;inset:0;z-index:9999;background:rgba(6,8,12,.97);overflow-y:auto;
- display:none;padding:28px 22px 60px;font-family:'DM Sans',sans-serif;color:#E2E8F0}
-#awx-overlay.open{display:block}
-.awx-wrap{max-width:1500px;margin:0 auto}
-.awx-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
-.awx-h1{font-size:24px;font-weight:700;color:#F8FAFC}
-.awx-close{background:#151922;border:1px solid #334155;color:#CBD5E1;border-radius:8px;
- padding:7px 14px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
-.awx-close:hover{border-color:#475569;color:#fff}
-.awx-sub{font-size:13px;color:#94A3B8;margin-bottom:14px}
-.awx-banner{background:#1c1407;border:1px solid #6b4e10;color:#FBBF24;border-radius:8px;
- padding:8px 12px;font-size:12px;margin-bottom:16px;line-height:1.5}
-.awx-toggles{display:flex;gap:20px;margin-bottom:16px;flex-wrap:wrap}
-.awx-tg{display:flex;gap:7px;align-items:center}
-.awx-lbl{font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:.05em;margin-right:3px}
-.awx-btn{padding:6px 14px;background:#151922;border:1px solid #334155;border-radius:8px;
- color:#94A3B8;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
-.awx-btn:hover{color:#CBD5E1;border-color:#475569}
-.awx-btn.on{background:#1D4ED8;color:#fff;border-color:#2563EB}
-.awx-legend{font-size:12px;color:#64748B;margin-bottom:14px}
-.awx-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 10px;vertical-align:middle}
-.awx-g{background:#34D399}.awx-y{background:#FBBF24}.awx-r{background:#F87171}
-table.awx-tbl{width:100%;border-collapse:collapse;background:#151922;border-radius:12px;overflow:hidden}
-.awx-tbl th{background:#1E293B;color:#CBD5E1;font-size:11px;text-transform:uppercase;
- letter-spacing:.03em;padding:10px 11px;text-align:right;font-weight:600;white-space:nowrap}
-.awx-tbl th:first-child{text-align:left}
-.awx-tbl td{padding:10px 11px;text-align:right;font-size:13px;border-top:1px solid #1E293B;
- font-family:'JetBrains Mono','DM Sans',monospace;white-space:nowrap}
-.awx-tbl td:first-child{text-align:left;font-family:'DM Sans',sans-serif;font-weight:600;color:#F1F5F9}
-.awx-tbl tr:hover td{background:#1A1F2B}
-.awx-tg-green{color:#34D399}.awx-tg-yellow{color:#FBBF24}.awx-tg-red{color:#F87171}.awx-muted{color:#64748B}
-.awx-note{font-size:11px;color:#64748B;margin-top:12px;line-height:1.5}
-</style>
-
-<div id="awx-overlay"><div class="awx-wrap">
- <div class="awx-top"><div><div class="awx-h1" id="awx-title"></div>
-   <div class="awx-sub" id="awx-subtitle"></div></div>
-   <button class="awx-close" onclick="awxClose()">✕ Close</button></div>
- <div class="awx-banner" id="awx-banner"></div>
- <div class="awx-toggles">
-  <div class="awx-tg"><span class="awx-lbl">Dimension</span>
-   <button class="awx-btn on" data-d="awareness" onclick="awxSet('dim','awareness',this)">Awareness Level</button>
-   <button class="awx-btn" data-d="leadtype" onclick="awxSet('dim','leadtype',this)">Lead Type</button></div>
-  <div class="awx-tg"><span class="awx-lbl">Segment</span>
-   <button class="awx-btn on" data-s="All" onclick="awxSet('seg','All',this)">All</button>
-   <button class="awx-btn" data-s="Static" onclick="awxSet('seg','Static',this)">Static</button>
-   <button class="awx-btn" data-s="Video" onclick="awxSet('seg','Video',this)">Video</button></div>
- </div>
- <div class="awx-legend" id="awx-legend"></div>
- <table class="awx-tbl"><thead id="awx-thead"></thead><tbody id="awx-tbody"></tbody></table>
- <div class="awx-note" id="awx-note"></div>
-</div></div>
-<script>
-(function(){
- var P={"name": "TCC (The Contractor Consultants)", "targets": "CPL \u2264 $350 \u00b7 CPQA \u2264 $500 \u00b7 CAC \u2264 $1,400", "cols": [{"label": "Spend", "fmt": "money"}, {"label": "Leads", "fmt": "int"}, {"label": "CPL", "fmt": "money", "good": 350, "warn": 450, "higher": false}, {"label": "MQL", "fmt": "int"}, {"label": "CPMQL", "fmt": "money"}, {"label": "QA", "fmt": "int"}, {"label": "CPQA", "fmt": "money", "good": 500, "warn": 600, "higher": false}, {"label": "SQL", "fmt": "int"}, {"label": "Customers", "fmt": "int"}, {"label": "CAC", "fmt": "money", "good": 1400, "warn": 1800, "higher": false}, {"label": "CTR", "fmt": "pct"}], "orders": {"awareness": ["Problem Aware", "Most Aware", "Solution Aware", "Product Aware", "Unclassified"], "leadtype": ["Problem-Solution", "Proclamation", "Promise", "Story", "Offer", "Secret", "Unclassified"]}, "data": {"awareness": {"All": {"Unclassified": {"Ads": 234, "Spend": 879481.36, "Leads": 3251.0, "CPL": 270.5264, "MQL": 1435.0, "CPMQL": 612.879, "QA": 1213.0, "CPQA": 725.0465, "SQL": 747.0, "Customers": 314.0, "CAC": 2800.8961, "CTR": 0.0096}, "Problem Aware": {"Ads": 107, "Spend": 71044.27, "Leads": 155.0, "CPL": 458.3501, "MQL": 68.0, "CPMQL": 1044.7687, "QA": 86.0, "CPQA": 826.0962, "SQL": 44.0, "Customers": 12.0, "CAC": 5920.3558, "CTR": 0.0086}, "Most Aware": {"Ads": 9, "Spend": 35953.17, "Leads": 159.0, "CPL": 226.1206, "MQL": 51.0, "CPMQL": 704.9641, "QA": 77.0, "CPQA": 466.9243, "SQL": 30.0, "Customers": 4.0, "CAC": 8988.2925, "CTR": 0.0116}, "Solution Aware": {"Ads": 55, "Spend": 23841.63, "Leads": 42.0, "CPL": 567.6579, "MQL": 15.0, "CPMQL": 1589.442, "QA": 15.0, "CPQA": 1589.442, "SQL": 9.0, "Customers": 4.0, "CAC": 5960.4075, "CTR": 0.0115}, "Product Aware": {"Ads": 6, "Spend": 0.0, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0}}, "Static": {"Unclassified": {"Ads": 77, "Spend": 257513.98, "Leads": 944.0, "CPL": 272.7902, "MQL": 400.0, "CPMQL": 643.7849, "QA": 365.0, "CPQA": 705.5178, "SQL": 227.0, "Customers": 86.0, "CAC": 2994.3486, "CTR": 0.0088}, "Problem Aware": {"Ads": 70, "Spend": 484.86, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0134}, "Most Aware": {"Ads": 6, "Spend": 0.0, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0}, "Solution Aware": {"Ads": 37, "Spend": 629.94, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0122}}, "Video": {"Unclassified": {"Ads": 157, "Spend": 621967.38, "Leads": 2307.0, "CPL": 269.6001, "MQL": 1035.0, "CPMQL": 600.9347, "QA": 848.0, "CPQA": 733.4521, "SQL": 520.0, "Customers": 228.0, "CAC": 2727.9271, "CTR": 0.01}, "Most Aware": {"Ads": 3, "Spend": 35953.17, "Leads": 159.0, "CPL": 226.1206, "MQL": 51.0, "CPMQL": 704.9641, "QA": 77.0, "CPQA": 466.9243, "SQL": 30.0, "Customers": 4.0, "CAC": 8988.2925, "CTR": 0.0116}, "Solution Aware": {"Ads": 18, "Spend": 23211.69, "Leads": 42.0, "CPL": 552.6593, "MQL": 15.0, "CPMQL": 1547.446, "QA": 15.0, "CPQA": 1547.446, "SQL": 9.0, "Customers": 4.0, "CAC": 5802.9225, "CTR": 0.0115}, "Problem Aware": {"Ads": 37, "Spend": 70559.41, "Leads": 155.0, "CPL": 455.222, "MQL": 68.0, "CPMQL": 1037.6384, "QA": 86.0, "CPQA": 820.4583, "SQL": 44.0, "Customers": 12.0, "CAC": 5879.9508, "CTR": 0.0086}, "Product Aware": {"Ads": 6, "Spend": 0.0, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0}}}, "leadtype": {"All": {"Unclassified": {"Ads": 234, "Spend": 879481.36, "Leads": 3251.0, "CPL": 270.5264, "MQL": 1435.0, "CPMQL": 612.879, "QA": 1213.0, "CPQA": 725.0465, "SQL": 747.0, "Customers": 314.0, "CAC": 2800.8961, "CTR": 0.0096}, "Proclamation": {"Ads": 26, "Spend": 8974.97, "Leads": 20.0, "CPL": 448.7485, "MQL": 8.0, "CPMQL": 1121.8713, "QA": 7.0, "CPQA": 1282.1386, "SQL": 4.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0097}, "Secret": {"Ads": 5, "Spend": 86.54, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0149}, "Story": {"Ads": 30, "Spend": 3526.49, "Leads": 1.0, "CPL": 3526.49, "MQL": 2.0, "CPMQL": 1763.245, "QA": 3.0, "CPQA": 1175.4967, "SQL": 1.0, "Customers": 1.0, "CAC": 3526.49, "CTR": 0.0064}, "Offer": {"Ads": 45, "Spend": 564.7, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0121}, "Problem-Solution": {"Ads": 50, "Spend": 111004.26, "Leads": 318.0, "CPL": 349.07, "MQL": 121.0, "CPMQL": 917.3906, "QA": 164.0, "CPQA": 676.8552, "SQL": 75.0, "Customers": 16.0, "CAC": 6937.7663, "CTR": 0.0101}, "Promise": {"Ads": 21, "Spend": 6682.11, "Leads": 17.0, "CPL": 393.0653, "MQL": 3.0, "CPMQL": 2227.37, "QA": 4.0, "CPQA": 1670.5275, "SQL": 3.0, "Customers": 3.0, "CAC": 2227.37, "CTR": 0.0137}}, "Static": {"Unclassified": {"Ads": 77, "Spend": 257513.98, "Leads": 944.0, "CPL": 272.7902, "MQL": 400.0, "CPMQL": 643.7849, "QA": 365.0, "CPQA": 705.5178, "SQL": 227.0, "Customers": 86.0, "CAC": 2994.3486, "CTR": 0.0088}, "Proclamation": {"Ads": 21, "Spend": 100.89, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0174}, "Secret": {"Ads": 5, "Spend": 86.54, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0149}, "Story": {"Ads": 16, "Spend": 0.0, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0}, "Offer": {"Ads": 45, "Spend": 564.7, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0121}, "Problem-Solution": {"Ads": 10, "Spend": 297.43, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0114}, "Promise": {"Ads": 16, "Spend": 65.24, "Leads": 0.0, "CPL": 0.0, "MQL": 0.0, "CPMQL": 0.0, "QA": 0.0, "CPQA": 0.0, "SQL": 0.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0124}}, "Video": {"Unclassified": {"Ads": 157, "Spend": 621967.38, "Leads": 2307.0, "CPL": 269.6001, "MQL": 1035.0, "CPMQL": 600.9347, "QA": 848.0, "CPQA": 733.4521, "SQL": 520.0, "Customers": 228.0, "CAC": 2727.9271, "CTR": 0.01}, "Problem-Solution": {"Ads": 40, "Spend": 110706.83, "Leads": 318.0, "CPL": 348.1347, "MQL": 121.0, "CPMQL": 914.9325, "QA": 164.0, "CPQA": 675.0416, "SQL": 75.0, "Customers": 16.0, "CAC": 6919.1769, "CTR": 0.0101}, "Promise": {"Ads": 5, "Spend": 6616.87, "Leads": 17.0, "CPL": 389.2276, "MQL": 3.0, "CPMQL": 2205.6233, "QA": 4.0, "CPQA": 1654.2175, "SQL": 3.0, "Customers": 3.0, "CAC": 2205.6233, "CTR": 0.0137}, "Proclamation": {"Ads": 5, "Spend": 8874.08, "Leads": 20.0, "CPL": 443.704, "MQL": 8.0, "CPMQL": 1109.26, "QA": 7.0, "CPQA": 1267.7257, "SQL": 4.0, "Customers": 0.0, "CAC": 0.0, "CTR": 0.0096}, "Story": {"Ads": 14, "Spend": 3526.49, "Leads": 1.0, "CPL": 3526.49, "MQL": 2.0, "CPMQL": 1763.245, "QA": 3.0, "CPQA": 1175.4967, "SQL": 1.0, "Customers": 1.0, "CAC": 3526.49, "CTR": 0.0064}}}}, "coverage": {"awareness": {"tagged": 177, "total": 411}, "leadtype": {"tagged": 177, "total": 411}}, "labels": {"awareness": "Awareness Level", "leadtype": "Lead Type"}};
- var dim='awareness',seg='All';
- window.awxOpen=function(){document.getElementById('awx-overlay').classList.add('open');awxRender();};
- window.awxClose=function(){document.getElementById('awx-overlay').classList.remove('open');};
- window.awxSet=function(kind,val,btn){
-   if(kind==='dim'){dim=val;document.querySelectorAll('[data-d]').forEach(function(b){b.classList.toggle('on',b===btn);});}
-   else{seg=val;document.querySelectorAll('[data-s]').forEach(function(b){b.classList.toggle('on',b===btn);});}
-   awxRender();
- };
- function fmt(v,f){
-   if(f==='money')return v?'$'+Math.round(v).toLocaleString():'\u2013';
-   if(f==='int')return Math.round(v).toLocaleString();
-   if(f==='x')return v?v.toFixed(2):'\u2013';
-   if(f==='pct')return (v*100).toFixed(2)+'%';
-   return v;
- }
- function cls(v,c){
-   if(c.good===undefined)return '';
-   if(v===0)return 'awx-muted';
-   if(c.higher)return v>=c.good?'awx-tg-green':v>=c.warn?'awx-tg-yellow':'awx-tg-red';
-   return v<=c.good?'awx-tg-green':v<=c.warn?'awx-tg-yellow':'awx-tg-red';
- }
- function awxRender(){
-   document.getElementById('awx-title').textContent=P.name+' \u2014 Awareness & Lead Type';
-   document.getElementById('awx-subtitle').textContent=P.labels[dim]+' \u00b7 All-Time \u00b7 '+seg+' ads';
-   document.getElementById('awx-legend').innerHTML=
-     '<span class="awx-dot awx-g"></span>On target<span class="awx-dot awx-y"></span>Within 1.5\u00d7<span class="awx-dot awx-r"></span>Off target &nbsp;&nbsp; Targets: '+P.targets;
-   var cov=P.coverage[dim];var pct=Math.round(100*cov.tagged/Math.max(cov.total,1));
-   var bn=document.getElementById('awx-banner');
-   if(pct>=70){bn.style.display='none';}
-   else{bn.style.display='block';bn.innerHTML='Only <b>'+cov.tagged+' of '+cov.total+'</b> ads ('+pct+'%) carry a '+P.labels[dim].toLowerCase()+' tag via CID \u2014 the rest predate the naming switchover and sit in <b>Unclassified</b>, which holds most of the spend. Read the tagged rows as directional until coverage grows.';}
-   var cols=P.cols,order=P.orders[dim],rows=P.data[dim][seg];
-   var th='<tr><th>'+P.labels[dim]+'</th><th>Ads</th>'+cols.map(function(c){return '<th>'+c.label+'</th>';}).join('')+'</tr>';
-   document.getElementById('awx-thead').innerHTML=th;
-   document.getElementById('awx-tbody').innerHTML=order.map(function(l){
-     var r=rows[l];if(!r||(r.Ads===0))return '';
-     var tds='<td>'+l+'</td><td>'+r.Ads+'</td>'+cols.map(function(c){
-        var v=r[c.label];return '<td class="'+cls(v,c)+'">'+fmt(v,c.fmt)+'</td>';}).join('');
-     return '<tr>'+tds+'</tr>';
-   }).join('');
-   document.getElementById('awx-note').innerHTML='Awareness Level &amp; Lead Type joined from the 2.0 Creative Tracker to the Creative &amp; Copy Tracking Sheet performance tabs on CID. Unclassified = ads with no CID / dimension tag (mostly pre-switchover). All-time figures.';
- }
-})();
-</script>
-<script>
-/* Add an "Awareness / Lead Type" tab to the dashboard's existing tab bar that
-   opens the overlay above.  Renderer-agnostic: clones a sibling tab so styling
-   matches, neutralises the original tab behaviour, and re-adds itself if the
-   renderer rebuilds the bar. */
-(function(){
- function bar(){return document.getElementById('tabBar')||document.querySelector('.tab-bar')
-   ||document.querySelector('.tabbar')||document.querySelector('.tabs-bar')||document.querySelector('.tabs')
-   ||document.getElementById('tabs')||document.querySelector('[role=tablist]');}
- function add(){
-   var b=bar();if(!b)return false;
-   if(document.getElementById('awx-tab'))return true;
-   var s=b.querySelector('button,a,[data-tab],.tab');
-   var t;
-   if(s){t=s.cloneNode(true);t.removeAttribute('onclick');t.removeAttribute('href');
-     t.setAttribute('data-tab','__awx__');}
-   else{t=document.createElement('button');}
-   t.id='awx-tab';t.classList.add('awx-tab');
-   ['active','on','sel','current','sorted','selected'].forEach(function(c){t.classList.remove(c);});
-   t.textContent='▦ Awareness / Lead Type';
-   t.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();
-     if(window.awxOpen)awxOpen();},true);
-   b.appendChild(t);return true;
- }
- var n=0,iv=setInterval(function(){n++;if(add()||n>60)clearInterval(iv);},120);
- if(window.MutationObserver){
-   var mo=new MutationObserver(function(){if(!document.getElementById('awx-tab'))add();});
-   document.addEventListener('DOMContentLoaded',function(){var b=bar();
-     if(b&&b.parentNode)mo.observe(b.parentNode,{childList:true,subtree:true});});
- }
- document.addEventListener('DOMContentLoaded',add);
-})();
-</script>
-<!-- AWARENESS_OVERLAY_END -->
 </body></html>
