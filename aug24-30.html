@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TCC Creative Performance Dashboard — Weekly (August 24 – August 30, 2026)</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0C0F14;color:#E2E8F0;font-family:'DM Sans',sans-serif;padding:24px 24px 48px}
+.wrap{max-width:1700px;margin:0 auto}
+h1{font-size:28px;font-weight:700;color:#F8FAFC;text-align:center;margin-bottom:4px}
+.subtitle{font-size:14px;color:#94A3B8;text-align:center;margin-bottom:16px}
+.legend{display:flex;justify-content:center;gap:24px;font-size:12px;color:#94A3B8;margin-bottom:20px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-g{background:#34D399}.dot-y{background:#FBBF24}.dot-r{background:#F87171}.dot-gr{background:#475569}
+.controls{display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.search{width:280px;padding:8px 12px;background:#151922;border:1px solid #334155;border-radius:8px;color:#E2E8F0;font-size:13px;font-family:'DM Sans',sans-serif}
+.search::placeholder{color:#64748B}
+.search:focus{outline:none;border-color:#3B82F6}
+.fbtn{padding:6px 14px;border-radius:8px;border:1px solid #334155;background:transparent;color:#94A3B8;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.fbtn:hover{color:#CBD5E1;border-color:#475569}
+.fbtn.active{background:#334155;color:#E2E8F0;border-color:#475569}
+.tab-bar{display:flex;width:fit-content;background:#151922;border-radius:10px;border:1px solid #1E293B;margin-bottom:16px;overflow:hidden}
+.tab{padding:10px 20px;cursor:pointer;color:#64748B;font-size:13px;font-weight:500;border-right:1px solid #1E293B;transition:all .15s;white-space:nowrap;user-select:none}
+.tab:last-child{border-right:none}
+.tab:hover{color:#CBD5E1}
+.tab.active{background:#3B82F6;color:#fff}
+.tab .cnt{opacity:.6;font-size:11px}
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid #1E293B;max-height:calc(100vh - 280px);overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{position:sticky;top:0;background:#151922;color:#94A3B8;font-weight:600;padding:10px;text-align:left;border-bottom:1px solid #1E293B;white-space:nowrap;cursor:pointer;user-select:none;z-index:10;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+thead th:hover{color:#CBD5E1}
+thead th .arr{font-size:10px;margin-left:3px;opacity:.4}
+thead th.sorted .arr{opacity:1;color:#3B82F6}
+tbody td{padding:8px 10px;border-bottom:1px solid #1E293B;white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:11px;color:#CBD5E1}
+tbody tr:hover td{background:#1a1f2e}
+.col-idx{position:sticky;left:0;z-index:5;background:#0C0F14;min-width:36px;text-align:center;color:#475569;font-size:11px}
+.col-name{position:sticky;left:36px;z-index:5;background:#0C0F14;min-width:360px;max-width:420px;overflow:hidden;text-overflow:ellipsis;font-family:'DM Sans',sans-serif;font-weight:500;color:#F8FAFC;font-size:12px}
+thead .col-idx{z-index:11;background:#151922}
+thead .col-name{z-index:11;background:#151922}
+tbody tr:hover .col-idx,tbody tr:hover .col-name{background:#1a1f2e}
+.nd{color:#475569}
+.wk{background:rgba(52,211,153,.15);color:#34D399;padding:3px 8px;border-radius:6px;font-weight:500}
+.of{background:rgba(251,191,36,.15);color:#FBBF24;padding:3px 8px;border-radius:6px;font-weight:500}
+.ak{background:rgba(248,113,113,.15);color:#F87171;padding:3px 8px;border-radius:6px;font-weight:500}
+.view-link{color:#60A5FA;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:11px;display:inline-flex;align-items:center;gap:3px}
+.view-link:hover{color:#93C5FD}
+.view-link svg{width:11px;height:11px}
+.row-count{text-align:right;color:#475569;font-size:12px;margin-top:8px}
+.rollup-row td{background:#1a2332!important;color:#F8FAFC!important;font-weight:700;border-bottom:2px solid #3B82F6}.rollup-row td.col-name{background:#1a2332!important;color:#60A5FA!important;font-family:'DM Sans',sans-serif;font-weight:700}.rollup-row td.col-idx{background:#1a2332!important;color:#60A5FA!important}.rollup-row .wk,.rollup-row .of,.rollup-row .ak{font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>TCC Creative Performance Dashboard</h1>
+<div class="subtitle">Weekly Performance Data &mdash; August 24 – August 30, 2026</div>
+<div class="legend" id="legend"></div>
+<div class="controls">
+<input class="search" id="search" placeholder="Search creatives..." type="text">
+<button class="fbtn" id="btnWinners" onclick="toggleFilter('winners')">Winners (CPQA &le; $500)</button>
+<button class="fbtn" id="btnSpend" onclick="toggleFilter('spend')">Min $1,500 Spend</button>
+</div>
+<div class="tab-bar" id="tabBar"></div>
+<div class="tbl-wrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+<div class="row-count" id="rowCount"></div>
+</div>
+<script>
+const DATA={"videoConcepts": [{"name": "VV12_3ReasonsWhy", "cost": 8720.12, "leads": 38.0, "cpl": 229.4768421052632, "qa": 26.0, "cpqa": 335.3892307692308, "mql": 16.0, "cpmql": 545.0075, "sql": 0.0, "cpsql": null, "cust": 1.0, "cac": 8720.12, "ctrAll": 0.9794913579390808, "ctrLink": 0.6648405942825443, "cpm": 75.58656796629857, "impressions": 115366.0, "link": "https://www.facebook.com/?feed_demo_ad=120243239790320271\u0026h=AQIg40WqwidqNnQi2vCcnUM5Qlc", "_clicksAll": 1130.0, "_linkClicks": 767.0, "_threeSec": 42204.0, "_thruPlays": 7136.0, "hookRate": 36.582702009257495, "holdRate": 16.908349919438916}, {"name": "VV10_YouSuck", "cost": 918.2500000000001, "leads": 2.0, "cpl": 459.12500000000006, "qa": 2.0, "cpqa": 459.12500000000006, "mql": 1.0, "cpmql": 918.2500000000001, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.9692651810123437, "ctrLink": 0.6544611051279927, "cpm": 76.07074807389611, "impressions": 12071.0, "link": "https://www.facebook.com/?feed_demo_ad=120246084533540271\u0026h=AQJcfo0QI7_T5wQ8FWMQjINZhto", "_clicksAll": 117.0, "_linkClicks": 79.0, "_threeSec": 1871.0, "_thruPlays": 544.0, "hookRate": 15.49995857841107, "holdRate": 29.0753607696419}, {"name": "VV1_5ReasonsWhy", "cost": 7577.88, "leads": 28.0, "cpl": 270.6385714285714, "qa": 15.0, "cpqa": 505.192, "mql": 6.0, "cpmql": 1262.98, "sql": 6.0, "cpsql": 1262.98, "cust": 2.0, "cac": 3788.94, "ctrAll": 0.5678567772471893, "ctrLink": 0.38599808506410216, "cpm": 45.63256113643617, "impressions": 166063.0, "link": "https://www.facebook.com/?feed_demo_ad=120243240386810271\u0026h=AQIEjdmpaGX_jVjpF_2Lbbrm8vg", "_clicksAll": 943.0, "_linkClicks": 641.0, "_threeSec": 29279.0, "_thruPlays": 3560.0, "hookRate": 17.631260425260294, "holdRate": 12.158885207828137}, {"name": "ThisIsWhatHappens", "cost": 10192.640000000001, "leads": 42.0, "cpl": 242.6819047619048, "qa": 16.0, "cpqa": 637.0400000000001, "mql": 9.0, "cpmql": 1132.5155555555557, "sql": 3.0, "cpsql": 3397.546666666667, "cust": 1.0, "cac": 10192.640000000001, "ctrAll": 1.5891458341141635, "ctrLink": 1.2037279962020415, "cpm": 63.669777494596666, "impressions": 160086.0, "link": "https://www.facebook.com/?feed_demo_ad=120244064082360271\u0026h=AQJO3HfpLmqJQRGajI91eLiEeLY", "_clicksAll": 2544.0, "_linkClicks": 1927.0, "_threeSec": 94769.0, "_thruPlays": 7885.0, "hookRate": 59.198805641967446, "holdRate": 8.320231299264528}, {"name": "Weak-pipeline", "cost": 1117.3200000000002, "leads": 1.0, "cpl": 1117.3200000000002, "qa": 1.0, "cpqa": 1117.3200000000002, "mql": 1.0, "cpmql": 1117.3200000000002, "sql": 1.0, "cpsql": 1117.3200000000002, "cust": 0.0, "cac": null, "ctrAll": 0.977415069273107, "ctrLink": 0.6832416018219777, "cpm": 106.02770924274057, "impressions": 10538.0, "link": "https://www.facebook.com/?feed_demo_ad=120248511865960271\u0026h=AQJxB_Au9nTQOjdzZ1x6Mzzj-Vg", "_clicksAll": 103.0, "_linkClicks": 72.0, "_threeSec": 2482.0, "_thruPlays": 590.0, "hookRate": 23.552856329474285, "holdRate": 23.771152296535053}, {"name": "Try to Hire In House", "cost": 1217.42, "leads": 3.0, "cpl": 405.8066666666667, "qa": 1.0, "cpqa": 1217.42, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 1.9331997950342386, "ctrLink": 1.4161270787720688, "cpm": 56.711231192062236, "impressions": 21467.0, "link": "https://www.facebook.com/?feed_demo_ad=120254333424160271\u0026h=AQJW3YlnkYBCnLMVa-JqrCWL1uM", "_clicksAll": 415.0, "_linkClicks": 304.0, "_threeSec": 12210.0, "_thruPlays": 521.0, "hookRate": 56.87799878883868, "holdRate": 4.266994266994267}, {"name": "Done Wasting", "cost": 2748.5299999999997, "leads": 5.0, "cpl": 549.7059999999999, "qa": 2.0, "cpqa": 1374.2649999999999, "mql": 0.0, "cpmql": null, "sql": 1.0, "cpsql": 2748.5299999999997, "cust": 0.0, "cac": null, "ctrAll": 1.0943730615861762, "ctrLink": 0.8218874612317236, "cpm": 60.88901196278245, "impressions": 45140.0, "link": "https://www.facebook.com/?feed_demo_ad=120245616667990271\u0026h=AQIjphHonHPXq5_dQBUV9T8suSo", "_clicksAll": 494.0, "_linkClicks": 371.0, "_threeSec": 14011.0, "_thruPlays": 1971.0, "hookRate": 31.038989809481617, "holdRate": 14.067518378416958}, {"name": "VV9_ItsImpossible", "cost": 278.62, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 1.0, "cpsql": 278.62, "cust": 1.0, "cac": 278.62, "ctrAll": 1.06702234078026, "ctrLink": 0.7335778592864288, "cpm": 92.90430143381127, "impressions": 2999.0, "link": "https://www.facebook.com/?feed_demo_ad=120243240386880271\u0026h=AQLG5JEgXMh4HkjpqANw7ubu3NA", "_clicksAll": 32.0, "_linkClicks": 22.0, "_threeSec": 689.0, "_thruPlays": 202.0, "hookRate": 22.974324774924977, "holdRate": 29.31785195936139}, {"name": "VV23_EverytimeYouHire", "cost": 75.57000000000001, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.5662514156285391, "ctrLink": 0.4530011325028313, "cpm": 85.5832389580974, "impressions": 883.0, "link": "https://www.facebook.com/?feed_demo_ad=120246084533780271\u0026h=AQLrWQh0DjcXa_5bSvK34fQUgyQ", "_clicksAll": 5.0, "_linkClicks": 4.0, "_threeSec": 131.0, "_thruPlays": 22.0, "hookRate": 14.835787089467722, "holdRate": 16.793893129770993}], "videoVariations": [{"name": "VHK98_Hook7 | VB28_Animated | VV20_ThisIsWhatHappens", "cost": 99.81, "leads": 1.0, "cpl": 99.81, "qa": 1.0, "cpqa": 99.81, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 1.1477045908183632, "ctrLink": 0.6487025948103792, "cpm": 49.80538922155689, "impressions": 2004.0, "link": "https://www.facebook.com/?feed_demo_ad=120243240386940271\u0026h=AQL4NHqsuAm0WRerPv6Wmy8e_UM", "_clicksAll": 23.0, "_linkClicks": 13.0, "_threeSec": 1031.0, "_thruPlays": 44.0, "hookRate": 51.44710578842315, "holdRate": 4.267701260911736}, {"name": "VHK106_HVACNewHook2 | VB27_New3RW | VV12_3ReasonsWhy", "cost": 1389.98, "leads": 10.0, "cpl": 138.998, "qa": 5.0, "cpqa": 277.996, "mql": 3.0, "cpmql": 463.32666666666665, "sql": 0.0, "cpsql": null, "cust": 1.0, "cac": 1389.98, "ctrAll": 1.1425534741596917, "ctrLink": 0.8015588326469156, "cpm": 61.55528984544529, "impressions": 22581.0, "link": "https://www.facebook.com/?feed_demo_ad=120253077096930271\u0026h=AQKXIhuWJ-SYSHgbIZrPOZSMMUg", "_clicksAll": 258.0, "_linkClicks": 181.0, "_threeSec": 6082.0, "_thruPlays": 1381.0, "hookRate": 26.934148177671496, "holdRate": 22.706346596514305}, {"name": "VHK92_Hook2 | VB27_New3RW | VV12_3ReasonsWhy", "cost": 7330.14, "leads": 28.0, "cpl": 261.7907142857143, "qa": 21.0, "cpqa": 349.05428571428575, "mql": 13.0, "cpmql": 563.8569230769231, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.9398070808859191, "ctrLink": 0.6315676025219594, "cpm": 79.00134720051733, "impressions": 92785.0, "link": "https://www.facebook.com/?feed_demo_ad=120243239790320271\u0026h=AQIg40WqwidqNnQi2vCcnUM5Qlc", "_clicksAll": 872.0, "_linkClicks": 586.0, "_threeSec": 36122.0, "_thruPlays": 5755.0, "hookRate": 38.930861669450884, "holdRate": 15.93211893029179}, {"name": "Animated - Try to Hire In House - explosion - 60 - Problem-Solution Lead 6 - CID1K850R6", "cost": 355.42, "leads": 1.0, "cpl": 355.42, "qa": 1.0, "cpqa": 355.42, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 1.9257950530035335, "ctrLink": 1.431095406360424, "cpm": 62.79505300353357, "impressions": 5660.0, "link": "https://www.facebook.com/?feed_demo_ad=120254333424150271\u0026h=AQLR-1IfNa1p9sLNkFHM1VWwVvM", "_clicksAll": 109.0, "_linkClicks": 81.0, "_threeSec": 3121.0, "_thruPlays": 136.0, "hookRate": 55.14134275618374, "holdRate": 4.357577699455303}, {"name": "VHK111_Hook12 | VB28_Animated | VV20_ThisIsWhatHappens", "cost": 441.65, "leads": 2.0, "cpl": 220.825, "qa": 1.0, "cpqa": 441.65, "mql": 1.0, "cpmql": 441.65, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 1.9974577810059921, "ctrLink": 1.3800617396041401, "cpm": 80.19792990739059, "impressions": 5507.0, "link": "https://www.facebook.com/?feed_demo_ad=120243266254130271\u0026h=AQJ5z4I6rfYs0JrEYYI8_lCM7gw", "_clicksAll": 110.0, "_linkClicks": 76.0, "_threeSec": 3045.0, "_thruPlays": 222.0, "hookRate": 55.29326311966588, "holdRate": 7.29064039408867}, {"name": "VHK23_HVAC | VB11_ControlYouShouldbeOut | VV10_YouSuck", "cost": 918.2500000000001, "leads": 2.0, "cpl": 459.12500000000006, "qa": 2.0, "cpqa": 459.12500000000006, "mql": 1.0, "cpmql": 918.2500000000001, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.9692651810123437, "ctrLink": 0.6544611051279927, "cpm": 76.07074807389611, "impressions": 12071.0, "link": "https://www.facebook.com/?feed_demo_ad=120246084533540271\u0026h=AQJcfo0QI7_T5wQ8FWMQjINZhto", "_clicksAll": 117.0, "_linkClicks": 79.0, "_threeSec": 1871.0, "_thruPlays": 544.0, "hookRate": 15.49995857841107, "holdRate": 29.0753607696419}, {"name": "Animated - ThisIsWhatHappens - Hook 15 - 55 - Problem-Solution Lead 3 - CIDV0VPB29", "cost": 3966.8700000000003, "leads": 19.0, "cpl": 208.7826315789474, "qa": 8.0, "cpqa": 495.85875000000004, "mql": 6.0, "cpmql": 661.1450000000001, "sql": 1.0, "cpsql": 3966.8700000000003, "cust": 0.0, "cac": null, "ctrAll": 1.0993393329522645, "ctrLink": 0.7816342536589256, "cpm": 52.73199781993168, "impressions": 75227.0, "link": "https://www.facebook.com/?feed_demo_ad=120244064082360271\u0026h=AQJO3HfpLmqJQRGajI91eLiEeLY", "_clicksAll": 827.0, "_linkClicks": 588.0, "_threeSec": 47137.0, "_thruPlays": 3681.0, "hookRate": 62.65968335836867, "holdRate": 7.8091520461633115}, {"name": "VHK2_Hook2StrugglingToHire | VB2_Short | VV1_5ReasonsWhy", "cost": 7514.3, "leads": 28.0, "cpl": 268.36785714285713, "qa": 15.0, "cpqa": 500.9533333333333, "mql": 6.0, "cpmql": 1252.3833333333334, "sql": 6.0, "cpsql": 1252.3833333333334, "cust": 2.0, "cac": 3757.15, "ctrAll": 0.5648587550076668, "ctrLink": 0.38303726734425475, "cpm": 45.54204015830591, "impressions": 164997.0, "link": "https://www.facebook.com/?feed_demo_ad=120243240386810271\u0026h=AQIEjdmpaGX_jVjpF_2Lbbrm8vg", "_clicksAll": 932.0, "_linkClicks": 632.0, "_threeSec": 29053.0, "_thruPlays": 3540.0, "hookRate": 17.60819893695037, "holdRate": 12.184628093484323}, {"name": "VHK110_Hook11 | VB28_Animated | VV20_ThisIsWhatHappens", "cost": 1760.84, "leads": 8.0, "cpl": 220.105, "qa": 3.0, "cpqa": 586.9466666666666, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 2.554541406945681, "ctrLink": 2.0647818343722175, "cpm": 97.99866429207479, "impressions": 17968.0, "link": "https://www.facebook.com/?feed_demo_ad=120244611101660271\u0026h=AQJCeGSXBpQtYoZQZLizs_Ipgxw", "_clicksAll": 459.0, "_linkClicks": 371.0, "_threeSec": 6971.0, "_thruPlays": 554.0, "hookRate": 38.79674977738201, "holdRate": 7.947209869459187}, {"name": "Spokesperson-F - Weak-pipeline - Does your pipeline look sm - 66 - Problem-Solution Lead 1 - CID45527TP", "cost": 721.5300000000001, "leads": 1.0, "cpl": 721.5300000000001, "qa": 1.0, "cpqa": 721.5300000000001, "mql": 1.0, "cpmql": 721.5300000000001, "sql": 1.0, "cpsql": 721.5300000000001, "cust": 0.0, "cac": null, "ctrAll": 1.0469314079422383, "ctrLink": 0.703971119133574, "cpm": 130.24007220216606, "impressions": 5540.0, "link": "https://www.facebook.com/?feed_demo_ad=120248511865960271\u0026h=AQJxB_Au9nTQOjdzZ1x6Mzzj-Vg", "_clicksAll": 58.0, "_linkClicks": 39.0, "_threeSec": 1234.0, "_thruPlays": 190.0, "hookRate": 22.27436823104693, "holdRate": 15.39708265802269}, {"name": "Spokesperson-F - Done Wasting - Fuel Equipment - 125 - Problem-Solution Body 2 - CIDMENASP9", "cost": 798.0299999999999, "leads": 3.0, "cpl": 266.00999999999993, "qa": 1.0, "cpqa": 798.0299999999999, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.968382718093031, "ctrLink": 0.6952491309385863, "cpm": 66.0511504717762, "impressions": 12082.0, "link": "https://www.facebook.com/?feed_demo_ad=120245616668020271\u0026h=AQLwLommHNKeGWlarLdRJ0VZHJ0", "_clicksAll": 117.0, "_linkClicks": 84.0, "_threeSec": 3260.0, "_thruPlays": 573.0, "hookRate": 26.982287700711804, "holdRate": 17.57668711656442}, {"name": "VHK107_Hook8 | VB28_Animated | VV20_ThisIsWhatHappens", "cost": 3143.2200000000003, "leads": 12.0, "cpl": 261.935, "qa": 3.0, "cpqa": 1047.74, "mql": 2.0, "cpmql": 1571.6100000000001, "sql": 2.0, "cpsql": 1571.6100000000001, "cust": 1.0, "cac": 3143.2200000000003, "ctrAll": 1.9410101692054518, "ctrLink": 1.5000632938098655, "cpm": 66.31545634836914, "impressions": 47398.0, "link": "https://www.facebook.com/?feed_demo_ad=120244611718440271\u0026h=AQI02qxDoWAqMxV66yDcCqKC4rY", "_clicksAll": 920.0, "_linkClicks": 711.0, "_threeSec": 31207.0, "_thruPlays": 3021.0, "hookRate": 65.84033081564623, "holdRate": 9.680520396064987}, {"name": "Spokesperson-M - Done Wasting - Fuel Equipment - 120 - Problem-Solution Body 1 - CIDSGYEI44", "cost": 1950.5, "leads": 2.0, "cpl": 975.25, "qa": 1.0, "cpqa": 1950.5, "mql": 0.0, "cpmql": null, "sql": 1.0, "cpsql": 1950.5, "cust": 0.0, "cac": null, "ctrAll": 1.1404198681105935, "ctrLink": 0.8681710932300805, "cpm": 59.00235948938229, "impressions": 33058.0, "link": "https://www.facebook.com/?feed_demo_ad=120245616667990271\u0026h=AQIjphHonHPXq5_dQBUV9T8suSo", "_clicksAll": 377.0, "_linkClicks": 287.0, "_threeSec": 10751.0, "_thruPlays": 1398.0, "hookRate": 32.52162865267106, "holdRate": 13.00344154032183}, {"name": "Animated - Try to Hire In House - spark-to-fire - 60 - Problem-Solution Lead 4 - CIDI4HRA3F", "cost": 707.84, "leads": 2.0, "cpl": 353.92, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 2.05601675847622, "ctrLink": 1.4663666692528512, "cpm": 54.91814725735123, "impressions": 12889.0, "link": "https://www.facebook.com/?feed_demo_ad=120254333424160271\u0026h=AQJW3YlnkYBCnLMVa-JqrCWL1uM", "_clicksAll": 265.0, "_linkClicks": 189.0, "_threeSec": 7447.0, "_thruPlays": 314.0, "hookRate": 57.77795019008457, "holdRate": 4.216463005237008}, {"name": "VHK23_HVAC | VB10_ControlWaitDontTellMe | VV9_ItsImpossible", "cost": 278.62, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 1.0, "cpsql": 278.62, "cust": 1.0, "cac": 278.62, "ctrAll": 1.06702234078026, "ctrLink": 0.7335778592864288, "cpm": 92.90430143381127, "impressions": 2999.0, "link": "https://www.facebook.com/?feed_demo_ad=120243240386880271\u0026h=AQLG5JEgXMh4HkjpqANw7ubu3NA", "_clicksAll": 32.0, "_linkClicks": 22.0, "_threeSec": 689.0, "_thruPlays": 202.0, "hookRate": 22.974324774924977, "holdRate": 29.31785195936139}, {"name": "Spokesperson-F - Weak-pipeline - Short does your pipeline look big - 62 - Problem-Solution Body - CIDAY7DBEE", "cost": 350.47, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.9492273730684326, "ctrLink": 0.7064017660044151, "cpm": 77.3664459161148, "impressions": 4530.0, "link": "https://www.facebook.com/?feed_demo_ad=120248511289280271\u0026h=AQIcaxCImfHfzlreThZEwYIo8tw", "_clicksAll": 43.0, "_linkClicks": 32.0, "_threeSec": 1135.0, "_thruPlays": 364.0, "hookRate": 25.055187637969095, "holdRate": 32.0704845814978}, {"name": "Animated - ThisIsWhatHappens - Hook 14 - 55 - Problem-Solution Lead 2 - CIDZR27C8C", "cost": 206.37, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 1.377848436671966, "ctrLink": 1.00688924218336, "cpm": 54.68203497615262, "impressions": 3774.0, "link": "https://www.facebook.com/?feed_demo_ad=120244064109510271\u0026h=AQL63Up1Qsk9etS0dvpSnXiz8Kc", "_clicksAll": 52.0, "_linkClicks": 38.0, "_threeSec": 1843.0, "_thruPlays": 172.0, "hookRate": 48.83412824589295, "holdRate": 9.332609875203472}, {"name": "VHK108_Hook9 | VB28_Animated | VV20_ThisIsWhatHappens", "cost": 241.79000000000002, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 2.424080980287693, "ctrLink": 2.237613212573255, "cpm": 64.40863079381994, "impressions": 3754.0, "link": "https://www.facebook.com/?feed_demo_ad=120244611276430271\u0026h=AQJTcpMdBI_H9iQy0ZmhnJBeC-8", "_clicksAll": 91.0, "_linkClicks": 84.0, "_threeSec": 1585.0, "_thruPlays": 73.0, "hookRate": 42.22163026105488, "holdRate": 4.605678233438486}, {"name": "Animated - Try to Hire In House - ground-falls - 60 - Problem-Solution Lead 5 - CIDCGXOMEZ", "cost": 154.16, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 1.4050719671007539, "ctrLink": 1.1651816312542838, "cpm": 52.83070596298835, "impressions": 2918.0, "link": "https://www.facebook.com/?feed_demo_ad=120254333424140271\u0026h=AQLV_BbkwO4p_hCzv7hwPi84WQA", "_clicksAll": 41.0, "_linkClicks": 34.0, "_threeSec": 1642.0, "_thruPlays": 71.0, "hookRate": 56.27141877998629, "holdRate": 4.323995127892814}, {"name": "VHK109_Hook10 | VB28_Animated | VV20_ThisIsWhatHappens", "cost": 180.70000000000002, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 1.335707925200356, "ctrLink": 1.068566340160285, "cpm": 80.45414069456814, "impressions": 2246.0, "link": "https://www.facebook.com/?feed_demo_ad=120246084533550271\u0026h=AQJIUg5LJ-_T3pqeoCvB6NogvE0", "_clicksAll": 30.0, "_linkClicks": 24.0, "_threeSec": 1129.0, "_thruPlays": 42.0, "hookRate": 50.26714158504008, "holdRate": 3.720106288751107}, {"name": "VHK115_Hook1AI | VB28_Animated | VV23_EverytimeYouHire", "cost": 75.57000000000001, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.5662514156285391, "ctrLink": 0.4530011325028313, "cpm": 85.5832389580974, "impressions": 883.0, "link": "https://www.facebook.com/?feed_demo_ad=120246084533780271\u0026h=AQLrWQh0DjcXa_5bSvK34fQUgyQ", "_clicksAll": 5.0, "_linkClicks": 4.0, "_threeSec": 131.0, "_thruPlays": 22.0, "hookRate": 14.835787089467722, "holdRate": 16.793893129770993}, {"name": "VHK1_Hook1HereAre5RW | VB2_Short | VV1_5ReasonsWhy", "cost": 63.58, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 1.0318949343339587, "ctrLink": 0.8442776735459663, "cpm": 59.64352720450281, "impressions": 1066.0, "link": "https://www.facebook.com/?feed_demo_ad=120243240386920271\u0026h=AQK_fYojQJJjQHOz_VmpcdZ-71A", "_clicksAll": 11.0, "_linkClicks": 9.0, "_threeSec": 226.0, "_thruPlays": 20.0, "hookRate": 21.200750469043154, "holdRate": 8.849557522123893}, {"name": "Animated - ThisIsWhatHappens - Hook 13 - 55 - Problem-Solution Lead 1 - CIDJQ0EGBD", "cost": 132.75, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 1.53276955602537, "ctrLink": 1.0570824524312896, "cpm": 70.16384778012686, "impressions": 1892.0, "link": "https://www.facebook.com/?feed_demo_ad=120244061607250271\u0026h=AQIctMtfT9alEXhrZyoRtMI7x34", "_clicksAll": 29.0, "_linkClicks": 20.0, "_threeSec": 667.0, "_thruPlays": 65.0, "hookRate": 35.25369978858351, "holdRate": 9.745127436281859}, {"name": "Spokesperson-F - Weak-pipeline - Does your pipeline look big - 66 - Problem-Solution Lead 2 - CIDFEDU4AH", "cost": 21.4, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.7843137254901961, "ctrLink": 0.39215686274509803, "cpm": 83.92156862745097, "impressions": 255.0, "link": "https://www.facebook.com/?feed_demo_ad=120248510806250271\u0026h=AQLZstZuBrbdzrNXPyytlbSAiRo", "_clicksAll": 2.0, "_linkClicks": 1.0, "_threeSec": 58.0, "_thruPlays": 21.0, "hookRate": 22.745098039215687, "holdRate": 36.206896551724135}, {"name": "Spokesperson-F - Weak-pipeline - Short does your pipeline look sm - 61 - Problem-Solution Lead 3 - CIDO44RWOK", "cost": 23.92, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.0, "ctrLink": 0.0, "cpm": 112.3004694835681, "impressions": 213.0, "link": "https://www.facebook.com/?feed_demo_ad=120248510465630271\u0026h=AQJpCVajQl_dm8ld4AOsPJmOte8", "_clicksAll": 0.0, "_linkClicks": 0.0, "_threeSec": 55.0, "_thruPlays": 15.0, "hookRate": 25.821596244131456, "holdRate": 27.27272727272727}, {"name": "VHK93_Hook3 | VB28_Animated | VV20_ThisIsWhatHappens", "cost": 18.64, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.949367088607595, "ctrLink": 0.6329113924050633, "cpm": 58.9873417721519, "impressions": 316.0, "link": "https://www.facebook.com/?feed_demo_ad=120243239852680271\u0026h=AQJEAaX3pfdkjT_8tx8oEty57tQ", "_clicksAll": 3.0, "_linkClicks": 2.0, "_threeSec": 154.0, "_thruPlays": 11.0, "hookRate": 48.734177215189874, "holdRate": 7.142857142857142}], "staticConcepts": [{"name": "SV4_TCCJustKilledBannerGeneral", "cost": 6408.7300000000005, "leads": 21.0, "cpl": 305.1776190476191, "qa": 16.0, "cpqa": 400.54562500000003, "mql": 8.0, "cpmql": 801.0912500000001, "sql": 6.0, "cpsql": 1068.1216666666667, "cust": 0.0, "cac": null, "ctrAll": 0.8879206180659807, "ctrLink": 0.608729083519461, "cpm": 58.66436600637107, "impressions": 109244.0, "link": "https://www.facebook.com/?feed_demo_ad=120246084533580271\u0026h=AQIXgHkt2YHrGn0ZJle6Om7fuUI", "_clicksAll": 970.0, "_linkClicks": 665.0, "_threeSec": 0.0, "_thruPlays": 0.0}, {"name": "BlackText - Rejection \u0026 Revelation (Construction)", "cost": 6712.830000000001, "leads": 22.0, "cpl": 305.1286363636364, "qa": 13.0, "cpqa": 516.3715384615385, "mql": 10.0, "cpmql": 671.2830000000001, "sql": 7.0, "cpsql": 958.9757142857144, "cust": 2.0, "cac": 3356.4150000000004, "ctrAll": 0.7500784520829985, "ctrLink": 0.502093331190252, "cpm": 51.379072811186894, "impressions": 130653.0, "link": "https://www.facebook.com/?feed_demo_ad=120253494810310271\u0026h=AQKCnRM1sTJE0XONHkNyac8Y5VY", "_clicksAll": 980.0, "_linkClicks": 656.0, "_threeSec": 0.0, "_thruPlays": 0.0}], "staticVariations": [{"name": "BlackText - Rejection \u0026 Revelation - Construction - Offer Lead 4 - CIDTZWJLKN", "cost": 3825.9599999999996, "leads": 15.0, "cpl": 255.06399999999996, "qa": 10.0, "cpqa": 382.59599999999995, "mql": 7.0, "cpmql": 546.5657142857142, "sql": 4.0, "cpsql": 956.4899999999999, "cust": 1.0, "cac": 3825.9599999999996, "ctrAll": 0.728650539201399, "ctrLink": 0.49813200498132004, "cpm": 50.68705121750881, "impressions": 75482.0, "link": "https://www.facebook.com/?feed_demo_ad=120253494810310271\u0026h=AQKCnRM1sTJE0XONHkNyac8Y5VY", "_clicksAll": 550.0, "_linkClicks": 376.0, "_threeSec": 0.0, "_thruPlays": 0.0}, {"name": "SC15_StillPaying20 | SV4_TCCJustKilledBannerGeneral", "cost": 6408.7300000000005, "leads": 21.0, "cpl": 305.1776190476191, "qa": 16.0, "cpqa": 400.54562500000003, "mql": 8.0, "cpmql": 801.0912500000001, "sql": 6.0, "cpsql": 1068.1216666666667, "cust": 0.0, "cac": null, "ctrAll": 0.8879206180659807, "ctrLink": 0.608729083519461, "cpm": 58.66436600637107, "impressions": 109244.0, "link": "https://www.facebook.com/?feed_demo_ad=120246084533580271\u0026h=AQIXgHkt2YHrGn0ZJle6Om7fuUI", "_clicksAll": 970.0, "_linkClicks": 665.0, "_threeSec": 0.0, "_thruPlays": 0.0}, {"name": "BlackText - Rejection \u0026 Revelation - Construction - Offer Lead 3 - CIDH3GUGDG", "cost": 1002.6900000000002, "leads": 3.0, "cpl": 334.2300000000001, "qa": 2.0, "cpqa": 501.3450000000001, "mql": 0.0, "cpmql": null, "sql": 2.0, "cpsql": 501.3450000000001, "cust": 0.0, "cac": null, "ctrAll": 0.7487303000157076, "ctrLink": 0.4450494790303157, "cpm": 52.49960730928322, "impressions": 19099.0, "link": "https://www.facebook.com/?feed_demo_ad=120253165146960271\u0026h=AQLG6erS_r5IazD2DZqNQLrzcFA", "_clicksAll": 143.0, "_linkClicks": 85.0, "_threeSec": 0.0, "_thruPlays": 0.0}, {"name": "BlackText - Rejection \u0026 Revelation - Construction - Offer Lead 1 - CIDQ61LMNM", "cost": 1575.79, "leads": 4.0, "cpl": 393.9475, "qa": 1.0, "cpqa": 1575.79, "mql": 3.0, "cpmql": 525.2633333333333, "sql": 1.0, "cpsql": 1575.79, "cust": 1.0, "cac": 1575.79, "ctrAll": 0.8027750247770069, "ctrLink": 0.5285761480013214, "cpm": 52.057813016187644, "impressions": 30270.0, "link": "https://www.facebook.com/?feed_demo_ad=120253494810330271\u0026h=AQK72IzP6gCNeKcYan08w5R7l5c", "_clicksAll": 243.0, "_linkClicks": 160.0, "_threeSec": 0.0, "_thruPlays": 0.0}, {"name": "BlackText - Rejection \u0026 Revelation - Construction - Offer Lead 2 - CID8SUGLR9", "cost": 289.52, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.8076634109691961, "ctrLink": 0.6386175807663411, "cpm": 54.3801652892562, "impressions": 5324.0, "link": "https://www.facebook.com/?feed_demo_ad=120253165579870271\u0026h=AQKS2vxXmNbeaiUxNkTz2q5uOIo", "_clicksAll": 43.0, "_linkClicks": 34.0, "_threeSec": 0.0, "_thruPlays": 0.0}, {"name": "BlackText - Rejection \u0026 Revelation - Construction - Offer Lead 5 - CIDMWGIAIF", "cost": 18.87, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.20920502092050208, "ctrLink": 0.20920502092050208, "cpm": 39.47698744769875, "impressions": 478.0, "link": "https://www.facebook.com/?feed_demo_ad=120253165146940271\u0026h=AQK1awj2VxDla7rgfBQIx2aPcn0", "_clicksAll": 1.0, "_linkClicks": 1.0, "_threeSec": 0.0, "_thruPlays": 0.0}], "copy": [{"name": "CHK2_TiredOfWastingHours | CB2_KingsRansom", "cost": 36257.72999999998, "leads": 140.0, "cpl": 258.9837857142856, "qa": 82.0, "cpqa": 442.16743902439003, "mql": 48.0, "cpmql": 755.3693749999996, "sql": 19.0, "cpsql": 1908.3015789473675, "cust": 7.0, "cac": 5179.675714285711, "ctrAll": 1.0083763159454906, "ctrLink": 0.7165180272886653, "cpm": 61.416825469420914, "impressions": 590355.0, "link": "https://www.facebook.com/?feed_demo_ad=120243239790320271\u0026h=AQIg40WqwidqNnQi2vCcnUM5Qlc", "_clicksAll": 5953.0, "_linkClicks": 4230.0, "_threeSec": 132072.0, "_thruPlays": 16015.0}, {"name": "CHK33_ItAlwaysStarts | CB10_ABlackHole", "cost": 5307.820000000001, "leads": 12.0, "cpl": 442.3183333333334, "qa": 6.0, "cpqa": 884.6366666666668, "mql": 5.0, "cpmql": 1061.564, "sql": 4.0, "cpsql": 1326.9550000000002, "cust": 2.0, "cac": 2653.9100000000003, "ctrAll": 0.6853770516531068, "ctrLink": 0.4685452471411198, "cpm": 50.03931254890501, "impressions": 106073.0, "link": "https://www.facebook.com/?feed_demo_ad=120243545214170271\u0026h=AQIQbS60lmAKp6xBh1GucGhBPGw", "_clicksAll": 727.0, "_linkClicks": 497.0, "_threeSec": 28659.0, "_thruPlays": 3189.0}, {"name": "CHK31_HowManyHours | CB8_WhatFloodsIn", "cost": 3184.9399999999996, "leads": 7.0, "cpl": 454.9914285714285, "qa": 3.0, "cpqa": 1061.6466666666665, "mql": 0.0, "cpmql": null, "sql": 1.0, "cpsql": 3184.9399999999996, "cust": 0.0, "cac": null, "ctrAll": 1.1269098295504725, "ctrLink": 0.8425328976419677, "cpm": 56.256115870352374, "impressions": 56615.0, "link": "https://www.facebook.com/?feed_demo_ad=120245616667990271\u0026h=AQIjphHonHPXq5_dQBUV9T8suSo", "_clicksAll": 638.0, "_linkClicks": 477.0, "_threeSec": 24705.0, "_thruPlays": 2706.0}], "male": [{"name": "Spokesperson-M - Done Wasting - Fuel Equipment - 120 - Problem-Solution Body 1 - CIDSGYEI44", "cost": 1950.5, "leads": 2.0, "cpl": 975.25, "qa": 1.0, "cpqa": 1950.5, "mql": 0.0, "cpmql": null, "sql": 1.0, "cpsql": 1950.5, "cust": 0.0, "cac": null, "ctrAll": 1.1404198681105935, "ctrLink": 0.8681710932300805, "cpm": 59.00235948938229, "impressions": 33058.0, "link": "https://www.facebook.com/?feed_demo_ad=120245616667990271\u0026h=AQIjphHonHPXq5_dQBUV9T8suSo", "_clicksAll": 377.0, "_linkClicks": 287.0, "_threeSec": 10751.0, "_thruPlays": 1398.0, "hookRate": 32.52162865267106, "holdRate": 13.00344154032183}], "female": [{"name": "Spokesperson-F - Weak-pipeline - Does your pipeline look sm - 66 - Problem-Solution Lead 1 - CID45527TP", "cost": 721.5300000000001, "leads": 1.0, "cpl": 721.5300000000001, "qa": 1.0, "cpqa": 721.5300000000001, "mql": 1.0, "cpmql": 721.5300000000001, "sql": 1.0, "cpsql": 721.5300000000001, "cust": 0.0, "cac": null, "ctrAll": 1.0469314079422383, "ctrLink": 0.703971119133574, "cpm": 130.24007220216606, "impressions": 5540.0, "link": "https://www.facebook.com/?feed_demo_ad=120248511865960271\u0026h=AQJxB_Au9nTQOjdzZ1x6Mzzj-Vg", "_clicksAll": 58.0, "_linkClicks": 39.0, "_threeSec": 1234.0, "_thruPlays": 190.0, "hookRate": 22.27436823104693, "holdRate": 15.39708265802269}, {"name": "Spokesperson-F - Done Wasting - Fuel Equipment - 125 - Problem-Solution Body 2 - CIDMENASP9", "cost": 798.0299999999999, "leads": 3.0, "cpl": 266.00999999999993, "qa": 1.0, "cpqa": 798.0299999999999, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.968382718093031, "ctrLink": 0.6952491309385863, "cpm": 66.0511504717762, "impressions": 12082.0, "link": "https://www.facebook.com/?feed_demo_ad=120245616668020271\u0026h=AQLwLommHNKeGWlarLdRJ0VZHJ0", "_clicksAll": 117.0, "_linkClicks": 84.0, "_threeSec": 3260.0, "_thruPlays": 573.0, "hookRate": 26.982287700711804, "holdRate": 17.57668711656442}, {"name": "Spokesperson-F - Weak-pipeline - Short does your pipeline look big - 62 - Problem-Solution Body - CIDAY7DBEE", "cost": 350.47, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.9492273730684326, "ctrLink": 0.7064017660044151, "cpm": 77.3664459161148, "impressions": 4530.0, "link": "https://www.facebook.com/?feed_demo_ad=120248511289280271\u0026h=AQIcaxCImfHfzlreThZEwYIo8tw", "_clicksAll": 43.0, "_linkClicks": 32.0, "_threeSec": 1135.0, "_thruPlays": 364.0, "hookRate": 25.055187637969095, "holdRate": 32.0704845814978}, {"name": "Spokesperson-F - Weak-pipeline - Does your pipeline look big - 66 - Problem-Solution Lead 2 - CIDFEDU4AH", "cost": 21.4, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.7843137254901961, "ctrLink": 0.39215686274509803, "cpm": 83.92156862745097, "impressions": 255.0, "link": "https://www.facebook.com/?feed_demo_ad=120248510806250271\u0026h=AQLZstZuBrbdzrNXPyytlbSAiRo", "_clicksAll": 2.0, "_linkClicks": 1.0, "_threeSec": 58.0, "_thruPlays": 21.0, "hookRate": 22.745098039215687, "holdRate": 36.206896551724135}, {"name": "Spokesperson-F - Weak-pipeline - Short does your pipeline look sm - 61 - Problem-Solution Lead 3 - CIDO44RWOK", "cost": 23.92, "leads": 0.0, "cpl": null, "qa": 0.0, "cpqa": null, "mql": 0.0, "cpmql": null, "sql": 0.0, "cpsql": null, "cust": 0.0, "cac": null, "ctrAll": 0.0, "ctrLink": 0.0, "cpm": 112.3004694835681, "impressions": 213.0, "link": "https://www.facebook.com/?feed_demo_ad=120248510465630271\u0026h=AQJpCVajQl_dm8ld4AOsPJmOte8", "_clicksAll": 0.0, "_linkClicks": 0.0, "_threeSec": 55.0, "_thruPlays": 15.0, "hookRate": 25.821596244131456, "holdRate": 27.27272727272727}], "maleRollup": {"name": "TOTAL (1 ads)", "cost": 1950.5, "leads": 2.0, "cpl": 975.25, "qa": 1.0, "cpqa": 1950.5, "mql": 0.0, "cpmql": null, "sql": 1.0, "cpsql": 1950.5, "cust": 0.0, "cac": null, "hookRate": 32.52162865267106, "holdRate": 13.00344154032183, "ctrAll": 1.1404198681105935, "ctrLink": 0.8681710932300805, "cpm": 59.00235948938229, "impressions": 33058.0, "link": "", "_rollup": true}, "femaleRollup": {"name": "TOTAL (5 ads)", "cost": 1915.3500000000001, "leads": 4.0, "cpl": 478.83750000000003, "qa": 2.0, "cpqa": 957.6750000000001, "mql": 1.0, "cpmql": 1915.3500000000001, "sql": 1.0, "cpsql": 1915.3500000000001, "cust": 0.0, "cac": null, "hookRate": 25.384615384615383, "holdRate": 20.24679559468358, "ctrAll": 0.9725906277630415, "ctrLink": 0.6896551724137931, "cpm": 84.67506631299736, "impressions": 22620.0, "link": "", "_rollup": true}};
+const TABS=[
+ {key:'videoConcepts',label:'Video Concepts',isConcept:true,isVideo:true},
+ {key:'videoVariations',label:'Video Variations',isConcept:false,isVideo:true},
+ {key:'staticConcepts',label:'Static Concepts',isConcept:true,isVideo:false},
+ {key:'staticVariations',label:'Static Variations',isConcept:false,isVideo:false},
+ {key:'copy',label:'Copy',isConcept:false,isVideo:false},
+ {key:'male',label:'Male',isConcept:false,isVideo:true,isGender:true,rollupKey:'maleRollup'},
+ {key:'female',label:'Female',isConcept:false,isVideo:true,isGender:true,rollupKey:'femaleRollup'}
+];
+const KPI={
+ cpqa:{green:500,yellow:600},
+ cpl:{green:300,yellow:350},
+ cac:{green:2500,yellow:3500},
+ hookRate:{green:20,yellow:15},
+ holdRate:{green:20,yellow:15}
+};
+let curTab=0,sortCol='cpqa',sortAsc=true,filters={winners:false,spend:false};
+function ccBadge(v,metric){
+ if(v==null)return'nd';
+ const k=KPI[metric];if(!k)return'nd';
+ if(metric==='hookRate'||metric==='holdRate')return v>=k.green?'wk':v>=k.yellow?'of':'ak';
+ return v<=k.green?'wk':v<=k.yellow?'of':'ak';
+}
+function fmt$(v){if(v==null)return'<span class="nd">&mdash;</span>';return'$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function fmtD(v){if(v==null)return'<span class="nd">&mdash;</span>';return'$'+Math.round(v).toLocaleString('en-US')}
+function fmtN(v){if(v==null)return'<span class="nd">&mdash;</span>';return Math.round(v).toLocaleString('en-US')}
+function fmtP(v){if(v==null)return'<span class="nd">&mdash;</span>';return v.toFixed(2)+'%'}
+function fmtBadge(v,metric){
+ if(v==null)return'<span class="nd">&mdash;</span>';
+ const cls=ccBadge(v,metric);
+ if(metric==='hookRate'||metric==='holdRate')return'<span class="'+cls+'">'+v.toFixed(1)+'%</span>';
+ return'<span class="'+cls+'">$'+Math.round(v).toLocaleString('en-US')+'</span>';
+}
+function fmtLink(url){
+ if(!url)return'<span class="nd">&mdash;</span>';
+ return'<a class="view-link" href="'+url+'" target="_blank" rel="noopener">View <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 1h7v7M11 1L4.5 7.5"/></svg></a>';
+}
+function fmtBrief(url){
+ if(!url)return'<span class="nd">&mdash;</span>';
+ return'<a class="view-link" href="'+url+'" target="_blank" rel="noopener">Brief <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 1h7v7M11 1L4.5 7.5"/></svg></a>';
+}
+function buildLegend(){
+ const t=TABS[curTab];
+ let h='';
+ h+='<div class="legend-item"><span class="dot dot-g"></span>CPQA &le; $500</div>';
+ h+='<div class="legend-item"><span class="dot dot-y"></span>CPQA $500&ndash;$600</div>';
+ h+='<div class="legend-item"><span class="dot dot-r"></span>CPQA &gt; $600</div>';
+ if(t.isVideo){
+  h+='<div class="legend-item"><span class="dot dot-g"></span>Hook/Hold &ge; 20%</div>';
+  h+='<div class="legend-item"><span class="dot dot-y"></span>Hook/Hold 15&ndash;20%</div>';
+  h+='<div class="legend-item"><span class="dot dot-r"></span>Hook/Hold &lt; 15%</div>';
+ }
+ h+='<div class="legend-item"><span class="dot dot-gr"></span>No Data</div>';
+ document.getElementById('legend').innerHTML=h;
+}
+function buildTabs(){
+ let h='';
+ TABS.forEach((t,i)=>{
+  const n=(DATA[t.key]||[]).length;
+  h+='<div class="tab'+(i===curTab?' active':'')+'" onclick="switchTab('+i+')">'+t.label+' <span class="cnt">('+n+')</span></div>';
+ });
+ document.getElementById('tabBar').innerHTML=h;
+}
+function getCols(){
+ const t=TABS[curTab];
+ let cols=[
+  {key:'idx',label:'#',sortable:false,cls:'col-idx'},
+  {key:'name',label:'Name',sortable:true,cls:'col-name'},
+  {key:'link',label:'Ad',sortable:false},
+  {key:'brief',label:'Brief',sortable:false},
+  {key:'cost',label:'Spend',sortable:true},
+  {key:'leads',label:'Leads',sortable:true},
+  {key:'cpl',label:'CPL',sortable:true,badge:'cpl'},
+  {key:'qa',label:'QA',sortable:true},
+  {key:'cpqa',label:'CPQA',sortable:true,badge:'cpqa'},
+  {key:'mql',label:'MQL',sortable:true},
+  {key:'cpmql',label:'CPMQL',sortable:true},
+  {key:'sql',label:'SQL',sortable:true},
+  {key:'cpsql',label:'CPSQL',sortable:true},
+  {key:'cust',label:'Cust',sortable:true},
+  {key:'cac',label:'CAC',sortable:true,badge:'cac'}
+ ];
+ if(t.isVideo){
+  cols.push({key:'hookRate',label:'Hook %',sortable:true,badge:'hookRate'});
+  cols.push({key:'holdRate',label:'Hold %',sortable:true,badge:'holdRate'});
+ }
+ cols.push(
+  {key:'ctrAll',label:'CTR (all)',sortable:true},
+  {key:'ctrLink',label:'CTR (link)',sortable:true},
+  {key:'cpm',label:'CPM',sortable:true},
+  {key:'impressions',label:'Impr',sortable:true}
+ );
+ return cols;
+}
+function renderTable(){
+ const t=TABS[curTab];
+ const cols=getCols();
+ const data=(DATA[t.key]||[]).slice();
+ const q=document.getElementById('search').value.toLowerCase();
+ let filtered=data.filter(r=>{
+  if(q&&!r.name.toLowerCase().includes(q))return false;
+  if(filters.spend&&(r.cost==null||r.cost<1500))return false;
+  if(filters.winners&&(r.cpqa==null||r.cpqa>500))return false;
+  return true;
+ });
+ filtered.sort((a,b)=>{
+  let va=a[sortCol],vb=b[sortCol];
+  if(va==null&&vb==null)return 0;
+  if(va==null)return 1;
+  if(vb==null)return -1;
+  if(typeof va==='string')return sortAsc?va.localeCompare(vb):vb.localeCompare(va);
+  return sortAsc?va-vb:vb-va;
+ });
+ let th='<tr>';
+ cols.forEach(c=>{
+  const sorted=c.key===sortCol;
+  const arr=sorted?(sortAsc?'&#9650;':'&#9660;'):'&#9650;';
+  const cls=(c.cls||'')+(sorted?' sorted':'');
+  if(c.sortable)th+='<th class="'+cls+'" onclick="doSort(\''+c.key+'\')">'+c.label+'<span class="arr">'+arr+'</span></th>';
+  else th+='<th class="'+cls+'">'+c.label+'</th>';
+ });
+ th+='</tr>';
+ document.getElementById('thead').innerHTML=th;
+ let tb='';
+ // Rollup row for gender tabs
+ if(t.isGender && t.rollupKey && DATA[t.rollupKey]){
+  const rr=DATA[t.rollupKey];
+  tb+='<tr class="rollup-row">';
+  cols.forEach(c=>{
+   const cls=c.cls||'';
+   if(c.key==='idx'){tb+='<td class="'+cls+'">&Sigma;</td>';return;}
+   if(c.key==='name'){tb+='<td class="'+cls+'">'+(rr.name||'TOTAL')+'</td>';return;}
+   if(c.key==='link'){tb+='<td><span class="nd">&mdash;</span></td>';return;}
+   if(c.key==='cost'){tb+='<td>'+fmt$(rr.cost)+'</td>';return;}
+   if(c.key==='leads'||c.key==='qa'||c.key==='mql'||c.key==='sql'||c.key==='cust'||c.key==='impressions'){tb+='<td>'+fmtN(rr[c.key])+'</td>';return;}
+   if(c.badge){tb+='<td>'+fmtBadge(rr[c.key],c.badge)+'</td>';return;}
+   if(c.key==='ctrAll'||c.key==='ctrLink'){tb+='<td>'+fmtP(rr[c.key])+'</td>';return;}
+   if(c.key==='cpm'||c.key==='cpmql'||c.key==='cpsql'){tb+='<td>'+fmtD(rr[c.key])+'</td>';return;}
+   tb+='<td>'+fmtN(rr[c.key])+'</td>';
+  });
+  tb+='</tr>';
+ }
+ filtered.forEach((r,i)=>{
+  tb+='<tr>';
+  cols.forEach(c=>{
+   const cls=c.cls||'';
+   if(c.key==='idx'){tb+='<td class="'+cls+'">'+(i+1)+'</td>';return;}
+   if(c.key==='name'){tb+='<td class="'+cls+'" title="'+(r.name||'').replace(/"/g,'&quot;')+'">'+(r.name||'')+'</td>';return;}
+   if(c.key==='link'){tb+='<td>'+fmtLink(r.link)+'</td>';return;}
+   if(c.key==='brief'){tb+='<td>'+fmtBrief(r.brief)+'</td>';return;}
+   if(c.key==='cost'){tb+='<td>'+fmt$(r.cost)+'</td>';return;}
+   if(c.key==='leads'||c.key==='qa'||c.key==='mql'||c.key==='sql'||c.key==='cust'||c.key==='impressions'){tb+='<td>'+fmtN(r[c.key])+'</td>';return;}
+   if(c.badge){tb+='<td>'+fmtBadge(r[c.key],c.badge)+'</td>';return;}
+   if(c.key==='ctrAll'||c.key==='ctrLink'){tb+='<td>'+fmtP(r[c.key])+'</td>';return;}
+   if(c.key==='cpm'||c.key==='cpmql'||c.key==='cpsql'){tb+='<td>'+fmtD(r[c.key])+'</td>';return;}
+   tb+='<td>'+fmtN(r[c.key])+'</td>';
+  });
+  tb+='</tr>';
+ });
+ document.getElementById('tbody').innerHTML=tb;
+ document.getElementById('rowCount').textContent=filtered.length+' of '+data.length+' creatives';
+}
+function switchTab(i){curTab=i;sortCol='cpqa';sortAsc=true;buildTabs();buildLegend();renderTable();}
+function doSort(col){if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=(col==='name'||col==='cpqa'||col==='cpl'||col==='cac');}renderTable();}
+function toggleFilter(f){filters[f]=!filters[f];document.getElementById(f==='winners'?'btnWinners':'btnSpend').classList.toggle('active');renderTable();}
+document.getElementById('search').addEventListener('input',renderTable);
+buildTabs();buildLegend();renderTable();
+</script>
+</body></html>
