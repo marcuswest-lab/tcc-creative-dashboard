@@ -116,6 +116,7 @@ const TABS=[
 ];
 const KPI={
  cpqa:{green:500,yellow:600},
+ cpmql:{green:849.99,yellow:1000},
  cpl:{green:300,yellow:350},
  cac:{green:2500,yellow:3500},
  hookRate:{green:20,yellow:15},
@@ -152,6 +153,9 @@ function buildLegend(){
  h+='<div class="legend-item"><span class="dot dot-g"></span>CPQA &le; $500</div>';
  h+='<div class="legend-item"><span class="dot dot-y"></span>CPQA $500&ndash;$600</div>';
  h+='<div class="legend-item"><span class="dot dot-r"></span>CPQA &gt; $600</div>';
+ h+='<div class="legend-item"><span class="dot dot-g"></span>CPMQL &lt; $850</div>';
+ h+='<div class="legend-item"><span class="dot dot-y"></span>CPMQL $850&ndash;$1,000</div>';
+ h+='<div class="legend-item"><span class="dot dot-r"></span>CPMQL &gt; $1,000</div>';
  if(t.isVideo){
   h+='<div class="legend-item"><span class="dot dot-g"></span>Hook/Hold &ge; 20%</div>';
   h+='<div class="legend-item"><span class="dot dot-y"></span>Hook/Hold 15&ndash;20%</div>';
@@ -182,7 +186,7 @@ function getCols(){
   {key:'qa',label:'QA',sortable:true},
   {key:'cpqa',label:'CPQA',sortable:true,badge:'cpqa'},
   {key:'mql',label:'MQL',sortable:true},
-  {key:'cpmql',label:'CPMQL',sortable:true},
+  {key:'cpmql',label:'CPMQL',sortable:true,badge:'cpmql'},
   {key:'sql',label:'SQL',sortable:true},
   {key:'cpsql',label:'CPSQL',sortable:true},
   {key:'cust',label:'Cust',sortable:true},
