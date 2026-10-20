@@ -93,6 +93,7 @@ tbody tr:hover .col-idx,tbody tr:hover .col-name{background:#1a1f2e}
 <div class="wrap">
 <h1>TCC Creative Performance Dashboard</h1>
 <div class="subtitle">All-Time Performance Data &mdash; Generated October 16, 2026</div>
+<!-- DATES_LINK_START --><div style="text-align:center;margin:12px auto 4px"><a href="./" style="display:inline-flex;align-items:center;gap:6px;background:#151922;border:1px solid #3B82F6;color:#93C5FD;border-radius:999px;padding:7px 15px;font-size:13px;font-weight:600;text-decoration:none">&larr; Back to the weekly view</a></div><!-- DATES_LINK_END -->
 <style id="dr-style">
 .dr-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:14px auto 18px;max-width:1100px}
 .dr-btn{background:#151922;border:1px solid #232a3a;color:#94A3B8;border-radius:999px;padding:7px 13px;font:inherit;font-size:13px;cursor:pointer}
@@ -775,7 +776,7 @@ function apply(from,to){
  if(from!==undefined)SP=[from,to];else{from=SP[0];to=SP[1];}
  if(!from){ // All time = the page exactly as published
   for(const t of TABLES)t.o[t.k]=t.orig.filter(launchKeep).map(r=>Object.assign({},r));
-  if(sub)sub.innerHTML=subOrig;
+  if(sub)sub.innerHTML=subOrig+' &middot; Date data refreshed '+OV.built+' (through '+fmtDay(OV.through)+')';
   $('dr-note').innerHTML='Showing <b>all time</b> — the weekly dashboard as published. Pick a range to see any dates (daily data through '+fmtDay(OV.through)+').';
  }else{
   const f=dayIdx(from,false),t=dayIdx(to,true);
